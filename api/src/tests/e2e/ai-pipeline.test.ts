@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { after, before, describe, it } from "node:test";
 import { analyzeIncident } from "../../modules/ai/analyze.ts";
 import type { GemmaClient } from "../../modules/ai/gemma.ts";
+import { MAX_ATTEMPTS, retryFailedAnalyses } from "../../modules/ai/retry.ts";
 import type { IIncidentDocument } from "../../modules/incidents/definitions.ts";
 import { startStack, type Stack } from "./helpers.ts";
 
@@ -114,5 +115,26 @@ describe("Happy AI pipeline (fixtures, real Mongo)", () => {
     const ai = await stack.models.AiAnalyses.findOne({ incidentId: String(inc._id) }).lean();
     assert.equal(ai?.state, "SKIPPED");
     assert.equal(called, false);
+  });
+
+  it("retry sweep: a QUOTA failure becomes READY later; overlapping sweeps call the model once per row; exhausted rows are left alone", async () => {
+    const inc = await makeIncident("Ангийнхан намайг шоолдог. (зохиомол)");
+    await analyzeIncident(stack.models, inc, "Анги", { client: fake(async () => { throw new Error("429 rate-limited upstream"); }) });
+    const exhausted = await makeIncident("Хуучин алдаа. (зохиомол)");
+    await analyzeIncident(stack.models, exhausted, "Анги", { client: fake(async () => { throw new Error("429 rate-limited upstream"); }) });
+    await stack.models.AiAnalyses.updateOne({ incidentId: String(exhausted._id) }, { $set: { attempts: MAX_ATTEMPTS } });
+
+    const retryable = await stack.models.AiAnalyses.countDocuments({ state: "FAILED", failureReason: { $in: ["QUOTA", "TIMEOUT", "NETWORK"] }, attempts: { $lt: MAX_ATTEMPTS } });
+    let calls = 0;
+    const deps = { client: fake(async () => { calls += 1; await new Promise((r) => setTimeout(r, 30)); return JSON.stringify(FIXTURE); }) };
+    const [a, b] = await Promise.all([retryFailedAnalyses(stack.models, { batch: 50, deps }), retryFailedAnalyses(stack.models, { batch: 50, deps })]);
+    assert.equal(a + b, retryable, "each retryable row re-run exactly once");
+    assert.equal(calls, retryable);
+
+    const ai = await stack.models.AiAnalyses.findOne({ incidentId: String(inc._id) }).lean();
+    assert.equal(ai?.state, "READY");
+    assert.equal(ai?.attempts, 2);
+    const left = await stack.models.AiAnalyses.findOne({ incidentId: String(exhausted._id) }).lean();
+    assert.equal(left?.state, "FAILED", "rows at MAX_ATTEMPTS are not retried");
   });
 });

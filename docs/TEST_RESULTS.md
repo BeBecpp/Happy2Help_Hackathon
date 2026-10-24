@@ -10,7 +10,9 @@ Revision: `main` @ `2ac9a70` (local only, not pushed). All people, schools and t
 | 14:33 | `pnpm --filter happy2help_api check` (tsc) | PASS |
 | 14:10 | `pnpm --filter happy2help_web exec tsc --noEmit` | PASS (was failing at 13:25 on `FloorMap.tsx` types) |
 | 13:25 | `pnpm --filter happy2help_api test` (unit: AI contract, prompt sanitisation, QR HMAC) | PASS 12/12 |
-| 14:30 | `pnpm --filter happy2help_api test:e2e` (real `startPlugin` process + mongodb-memory-server) | **PASS 47/47** — adds F1 federation composition and a concurrent Patrol check-in test |
+| 14:58 | `pnpm --filter happy2help_api test:e2e` (real `startPlugin` process + mongodb-memory-server) | **PASS 48/48** (10 suites) — adds the AI retry sweep test |
+| 14:58 | `node tools/smoke-bff.mjs` (live stack, after plugin hot-reload with the sweeper) | PASS 15/15 (incident #KF2G) |
+| 14:30 | same E2E, previous run | PASS 47/47 — adds F1 federation composition and a concurrent Patrol check-in test |
 | 14:35 | same, previous run | PASS 45/45 — sos-flow 13, chat, modules (Council/Patrol/Care), ai-pipeline (fixtures), response E1/E4/E6/E7 |
 | 14:20 | same, previous run | FAIL 1 — Council duplicate vote accepted on a fresh DB (unique index not built yet). Fixed with `ensureIndexes()` awaited in the plugin context; re-run above passes |
 | — | `next build` (web production build) | NOT_RUN — would overwrite `.next` of the owner's running dev server |
@@ -63,7 +65,13 @@ Note: full-page captures draw the sticky header mid-page; that is a capture arti
 | 14:31 | `pnpm ai:verify` | `fetch failed`; `openrouter.ai` DNS did not resolve from the laptop (venue network) |
 | 14:45 | `ai:diag`, `Invoke-WebRequest https://www.google.com` | DNS resolves and TCP to 1.1.1.1:443 succeeds, but every HTTPS request times out (Google included) → network-side blocker |
 
-No live Gemma 4 output has been obtained or persisted yet; nothing in the UI pretends otherwise.
+| 14:50 | `pnpm --filter happy2help_api ai:diag` (network back briefly) | unchanged: paid 402, `:free` 429 upstream |
+| 14:55 | `npx tsx … src/scripts/verify-ai.ts --retry 40` (background, every 45 s) | running; network dropped again mid-run (`fetch failed`) — see `%TEMP%\h2h-aiverify-loop.txt` |
+| 14:55 | `ai-pipeline.test.ts` | PASS 8/8 incl. retry sweep (QUOTA → READY on retry, overlapping sweeps call once per row, MAX_ATTEMPTS respected) |
+
+The running plugin now re-tries retryable FAILED analyses every 90 s, so existing demo incidents turn READY by
+themselves once capacity exists. No live Gemma 4 output has been obtained or persisted yet; nothing in the UI
+pretends otherwise.
 Unblock: add OpenRouter credits (paid slug) or wait for upstream free capacity, then `pnpm ai:verify`.
 
 ## Not verified

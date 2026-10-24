@@ -28,6 +28,8 @@ export interface IAiAnalysis {
   requestedAt: Date;
   generatedAt?: Date;
   latencyMs?: number;
+  /** Model calls made for this incident (first run + retries). */
+  attempts?: number;
 }
 export interface IAiAnalysisDocument extends IAiAnalysis, Document<string> {
   _id: string;
@@ -53,6 +55,8 @@ export const aiAnalysisSchema = schemaWrapper(
     requestedAt: { type: Date, default: Date.now },
     generatedAt: { type: Date },
     latencyMs: { type: Number },
+    attempts: { type: Number, default: 0 },
   }),
 );
 aiAnalysisSchema.index({ tenantId: 1, schoolId: 1, incidentId: 1 }, { unique: true });
+aiAnalysisSchema.index({ state: 1, failureReason: 1, generatedAt: 1 });

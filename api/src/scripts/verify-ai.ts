@@ -30,7 +30,11 @@ async function main() {
   const client = createGemmaClient();
   console.log(`Provider: ${aiConfig.provider} · model: ${aiConfig.modelId}`);
 
-  const models = await client.listGemmaModels();
+  // The model list is evidence, not a precondition: a flaky network must not stop the generation retries.
+  const models = await client.listGemmaModels().catch((error: unknown) => {
+    console.warn(`model list unavailable: ${error instanceof Error ? error.message : error}`);
+    return [] as string[];
+  });
   console.log(`Gemma models visible to this key (${models.length}):\n  ${models.join("\n  ") || "(none)"}`);
   const configuredAvailable = models.includes(aiConfig.modelId);
   if (!configuredAvailable) {
@@ -38,12 +42,28 @@ async function main() {
   }
 
   const prompt = buildUserPrompt(FICTIONAL_CASE);
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(new Error("TIMEOUT")), aiConfig.timeoutMs);
-  const started = Date.now();
-  const { text, modelId } = await client.generate(prompt, controller.signal);
-  clearTimeout(timer);
-  const latencyMs = Date.now() - started;
+  // --retry N: repeat capacity failures (402/429/503) every 45 s, up to N attempts, for free-tier windows.
+  const retryIdx = process.argv.indexOf("--retry");
+  const attempts = retryIdx > 0 ? Math.max(1, Number(process.argv[retryIdx + 1]) || 1) : 1;
+  let reply: { text: string; modelId: string } | null = null;
+  let latencyMs = 0;
+  for (let attempt = 1; attempt <= attempts && !reply; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(new Error("TIMEOUT")), aiConfig.timeoutMs);
+    const started = Date.now();
+    try {
+      reply = await client.generate(prompt, controller.signal);
+      latencyMs = Date.now() - started;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (attempt === attempts || !/^(402|429|503) |fetch failed|TIMEOUT|abort/i.test(message)) throw error;
+      console.log(`${new Date().toISOString()} attempt ${attempt}/${attempts}: ${message.slice(0, 120)} — retrying in 45 s`);
+      await new Promise((r) => setTimeout(r, 45_000));
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  const { text, modelId } = reply!;
   const output = parseAiOutput(text);
 
   const proof = {

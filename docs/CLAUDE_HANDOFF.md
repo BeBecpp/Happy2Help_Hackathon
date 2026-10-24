@@ -15,7 +15,8 @@ venue network down), erxes gateway / Core UI integration (no gateway here, no UI
 This session (Cursor) added: `caseScope`, `STAFF_INTERNAL` enum fix, `clientMessageId` idempotency,
 `ensureIndexes`, critical-first sort, OpenRouter-first config + retry/backoff, student Happy AI chat,
 AI retry mutation, floor-plan seed + `/student/map` + `/teacher/map`, teacher response workspace UI, patrol
-check-in race fix, federation composition test, tools (`smoke-bff`, `screenshots`, `ai-live-check`,
+check-in race fix, federation composition test, AI retry sweeper (`api/src/modules/ai/retry.ts`, started in
+`main.ts`, every 90 s, QUOTA/TIMEOUT/NETWORK only, ≤6 calls per incident, atomic claim), `verify-ai.ts --retry N`, tools (`smoke-bff`, `screenshots`, `ai-live-check`,
 `redis-keys`, `federation-check`, `diag-openrouter`).
 
 ## 2. Environment
@@ -114,8 +115,8 @@ Web: every operation the browser may call is listed by name in `web/lib/server/o
 Negative tests: response E4/E6/E7 (foreign teacher assign, student/other student/foreign teacher on staff room, patrol supervisor + nurse denied on detail/ack/self-assign/staff room/follow-up until assigned, student marker query FORBIDDEN, other school floor plan hidden), sos-flow (unauthenticated, foreign zone, student on teacher ops, other student's incident, other school ack), chat (non-member, cross-school), modules (non-moderator, non-patrol, wrong member, forged QR, teacher/social worker on nurse request).
 
 ## 9. Tests (executed, not just written)
-See `docs/TEST_RESULTS.md`. Last full run (14:30): `pnpm --filter happy2help_api test:e2e` → **47/47 PASS**
-(10 suites, incl. F1 federation composition and concurrent patrol check-in); `pnpm --filter happy2help_api test` 12/12; API + web `tsc --noEmit` PASS;
+See `docs/TEST_RESULTS.md`. Last full run (14:58): `pnpm --filter happy2help_api test:e2e` → **48/48 PASS**
+(10 suites, incl. F1 federation composition, concurrent patrol check-in, AI retry sweep); `pnpm --filter happy2help_api test` 12/12; API + web `tsc --noEmit` PASS;
 `node tools/smoke-bff.mjs` 15/15 on the live stack; Edge journey via `tools/screenshots.mjs` completed.
 `next build` NOT RUN (would overwrite the running dev server's `.next`). Tools unavailable: Docker, real Redis,
 erxes gateway, a phone for QR, stable internet after ~14:30.
@@ -145,7 +146,8 @@ Provision: copy `.env.example` → `.env` (gitignored); `tools/dev-stack.mjs` ge
 
 ## 13. Next 5 actions for Claude
 1. **Gemma live proof** — start `api/src/modules/ai/gemma.ts`; when network + credits exist run
-   `pnpm --filter happy2help_api ai:diag`, `pnpm ai:verify`, then on an existing FAILED incident click
+   `pnpm --filter happy2help_api ai:diag`, `npx tsx --env-file-if-exists=../.env --env-file-if-exists=../.env.runtime src/scripts/verify-ai.ts --retry 40`
+   (from `api/`); the plugin's sweeper re-runs FAILED·QUOTA incidents automatically, or click
    «Gemma 4-өөр дахин шинжлүүлэх». Accept: `docs/ai-proof/latest.json` written, an incident shows READY with a
    `google/gemma-4-*` model id; update TEST_RESULTS.
 2. **Push submission repo** (only with owner OK) — `git remote add origin https://github.com/BeBecpp/Happy2Help_Hackathon.git`,

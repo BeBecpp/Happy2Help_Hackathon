@@ -90,7 +90,12 @@ Latest results: [`docs/TEST_RESULTS.md`](docs/TEST_RESULTS.md).
   mounts `/health`, decodes the gateway's `user` / `cpuser` / `clientportal` headers into the resolver context, and
   registers itself through erxes Redis service discovery (`erxesservice:config:happy2help`,
   `erxes-service-happy2help`, `erxes-service-owner:happy2help`). All of this runs and is exercised by the tests.
-- **Not verified on this laptop:** composition into an erxes gateway supergraph (no Docker here). The repo's
+- **Verified offline:** `node tools/redis-keys.mjs` shows the three service-discovery keys written by the running
+  plugin, and `node tools/federation-check.mjs` (also E2E test F1) composes the live `_service { sdl }` into a
+  Federation 2 supergraph with all 40 `happy2help*` root fields.
+- **Not implemented:** an erxes Core UI remote (Module Federation). `erxes.json` declares the `ui` slot, but the
+  staff and student UI ship as the separate Next.js app in `web/`.
+- **Not verified on this laptop:** a real erxes gateway serving these operations (no Docker here). The repo's
   `erxes.json`, `Dockerfile` and [`docs/erxes-integration.md`](docs/erxes-integration.md) describe how an erxes
   host enables it (`ENABLED_PLUGINS_ONLY_API=happy2help`, shared Mongo + Redis).
 - **Hosted tenant** `zevqora.next.erxes.io` is the multi-tenant erxes SaaS on the shared gateway

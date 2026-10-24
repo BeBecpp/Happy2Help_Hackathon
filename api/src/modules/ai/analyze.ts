@@ -54,7 +54,7 @@ export async function analyzeIncident(
   const requestedAt = now();
   await models.AiAnalyses.updateOne(
     { tenantId: base.tenantId, schoolId: base.schoolId, incidentId: base.incidentId },
-    { $setOnInsert: { ...base, requestedAt }, $set: { state: "PENDING" } },
+    { $setOnInsert: { ...base, requestedAt }, $set: { state: "PENDING" }, $inc: { attempts: 1 } },
     { upsert: true },
   );
 
