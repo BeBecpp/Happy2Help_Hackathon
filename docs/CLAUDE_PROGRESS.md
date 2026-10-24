@@ -31,6 +31,11 @@ Everything below must work offline.
 ## 15:40–15:45
 - Network returned: `git push origin main` PASS (remote head verified), fresh Gemma 4 proof 15:42 (`gemma-4-26b-a4b-it:free`, 8.9 s). Remaining: teammate MLH submission; external deploy intentionally not attempted (no host, dev-direct must stay local).
 
+## 15:50–16:30 — technical keynote (owner correction: teaser too fast)
+- New Remotion composition `Happy2HelpKeynote` (`video/src/Keynote.tsx`, `video/src/keynote/*`), 304 s; the 106 s teaser untouched.
+- Real evidence added: `video/public/stills/` (zones page, decoded zone QR, verified + forged student pages), `brand/repo-qr.png`.
+- v1 rendered 16:24 and inspected (38 frames); v2 re-render in progress with two cosmetic fixes. Script: `docs/KEYNOTE_SCRIPT.md`.
+
 ## Pending (in order)
 1. Run: `node tools/film/record-footage.mjs` → webm clips; convert to mp4: `ffmpeg -i clip.webm -c:v libx264 -crf 18 -pix_fmt yuv420p clip.mp4` (Remotion `<OffthreadVideo>` reads mp4 reliably).
 2. Run: `node tools/film/make-music.mjs`.

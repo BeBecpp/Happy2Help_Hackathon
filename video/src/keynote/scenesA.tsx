@@ -141,7 +141,7 @@ export const QrScene: React.FC<{ dur: number }> = ({ dur }) => {
       <Pill text={K.s04.okLabel} at={s(15)} x={1010} y={872} size={19} color={theme.navy} bg="rgba(167,227,193,0.95)" width={330} />
       <Pill text={K.s04.badLabel} at={s(18)} x={1400} y={872} size={19} color={theme.white} bg={theme.danger} width={330} />
       {/* steps, one at a time */}
-      <div style={{ position: "absolute", left: 96, top: 700, width: 860, display: "grid", gap: 6 }}>
+      <div style={{ position: "absolute", left: 96, top: 690, width: 860, display: "grid", gap: 4 }}>
         {K.s04.steps.map((t, i) => (
           <Reveal key={i} at={stepAt[i]} dx={-12} dy={0}>
             <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
@@ -151,8 +151,8 @@ export const QrScene: React.FC<{ dur: number }> = ({ dur }) => {
           </Reveal>
         ))}
       </div>
-      <Reveal at={s(21)} style={{ position: "absolute", left: 96, top: 918, width: 860 }}>
-        <Body size={17} weight={600} color={theme.muted}>{K.s04.honest}</Body>
+      <Reveal at={s(21)} style={{ position: "absolute", left: 96, top: 896, width: 880 }}>
+        <Body size={16} weight={600} color={theme.muted}>{K.s04.honest}</Body>
       </Reveal>
       <Subtitles lines={K.s04.narration} dur={dur} bottom={10} />
     </Slide>

@@ -34,8 +34,9 @@ const ClosingMusic: React.FC = () => {
   return <Audio src={staticFile("audio/soundtrack.wav")} startFrom={f(96)} volume={v} />;
 };
 
+/** Root is light so light→light chapter changes cross-fade softly; dark chapters paint their own navy. */
 export const Happy2HelpKeynote: React.FC = () => (
-  <AbsoluteFill style={{ background: theme.navyDeep, fontFamily: theme.font }}>
+  <AbsoluteFill style={{ background: theme.cloud, fontFamily: theme.font }}>
     <Sequence from={0} durationInFrames={f(48)}><OpeningMusic /></Sequence>
     <Sequence from={S.closing.from} durationInFrames={S.closing.dur}><ClosingMusic /></Sequence>
     <Sequence from={S.hook.from} durationInFrames={S.hook.dur}><HookScene dur={S.hook.dur} /></Sequence>
