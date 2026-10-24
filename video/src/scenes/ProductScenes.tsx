@@ -21,7 +21,8 @@ const DESK_CROP = 0;
 
 const Caption: React.FC<{ text: string; at: number; until: number; x?: number; y?: number; small?: boolean; color?: string }> = ({ text, at, until, x = 120, y = 900, small = false, color = theme.navy }) => {
   const frame = useCurrentFrame();
-  const o = interpolate(frame, [at, at + 12, until - 12, until], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const end = Math.max(until, at + 40); // guard: ranges must stay monotonic
+  const o = interpolate(frame, [at, at + 12, end - 12, end], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const p = spring({ frame: frame - at, fps: 30, config: { damping: 18, stiffness: 120 } });
   return (
     <div style={{ position: "absolute", left: x, top: y, opacity: o, transform: `translateY(${(1 - p) * 16}px)` }}>
@@ -82,11 +83,11 @@ export const SplitScene: React.FC<{ dur: number }> = ({ dur }) => {
       <Label text={copy.split.student} x={1350} y={48} />
       <Sequence from={HANDOFF} durationInFrames={30}><Audio src={staticFile("audio/whoosh.wav")} volume={0.7} /></Sequence>
       <Sequence from={HANDOFF + 38} durationInFrames={40}><Audio src={staticFile("audio/ping.wav")} volume={0.6} /></Sequence>
-      <Caption text={copy.split.step1} at={30} until={240} />
-      <Caption text={copy.split.step2} at={250} until={HANDOFF + 20} color={theme.danger} />
-      <Caption text={copy.split.step3} at={HANDOFF + 40} until={HANDOFF + 200} />
-      <Caption text={copy.split.step4} at={HANDOFF + 210} until={HANDOFF + 420} />
-      <Caption text={copy.split.step5} at={HANDOFF + 430} until={dur - 20} />
+      <Caption text={copy.split.step1} at={30} until={300} />
+      <Caption text={copy.split.step2} at={310} until={HANDOFF + 20} color={theme.danger} />
+      <Caption text={copy.split.step3} at={HANDOFF + 40} until={HANDOFF + 140} />
+      <Caption text={copy.split.step4} at={HANDOFF + 150} until={HANDOFF + 230} />
+      <Caption text={copy.split.step5} at={HANDOFF + 240} until={dur - 16} />
       <Truth />
     </AbsoluteFill>
   );
