@@ -26,8 +26,11 @@ Statuses: [PASS] verified by a command or real browser run today · [FAIL] · [U
 
 ## Happy AI · Gemma 4
 - [PASS] Pipeline with fixtures (READY/FAILED/SKIPPED, timeout, quota, schema, retry sweeper) — `ai-pipeline.test.ts`.
-- [BLOCKED] Live inference: OpenRouter paid ids 402 (no credits), `:free` ids 429 upstream, then no network.
-  `docs/ai-proof/latest.json` therefore does not exist; the UI shows FAILED · QUOTA honestly.
+- [PASS] **Live inference verified** at 15:01 local (Cursor retry loop, before the network dropped): `google/gemma-4-31b-it:free`
+  via OpenRouter, 12.2 s, output validated against the Zod schema — `docs/ai-proof/latest.json` (fictional case, no key).
+  Known artifact in that reply: one action item mixes Greek letters into a Mongolian word; structure passed, content is
+  advisory and teacher-reviewed. Paid ids still 402 (no credits), free ids rate-limited (429) most of the afternoon, so
+  live analyses are intermittent; the UI shows FAILED · QUOTA with automatic retry when capacity is missing.
 
 ## Film
 - [PASS] `tools/film/record-footage.mjs` — six real clips recorded on the polished UI (15:27), transcoded with NVENC.

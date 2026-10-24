@@ -17,9 +17,11 @@ cross-student, cross-school, cross-role denials (48/48 E2E, 15/15 live smoke).
 **What does Gemma 4 do, and is it live?** After an SOS is committed, the plugin asynchronously sends the fictional
 description to Gemma 4 (open-weight, Google DeepMind) through a hosted endpoint (OpenRouter `google/gemma-4-*`, or the
 Gemini API id `gemma-4-26b-a4b-it`), validates the JSON against a strict schema and stores a teacher-only summary with
-suggested next steps. Today's status: the pipeline is tested with labelled fixtures; a live reply was **not** obtained
-(OpenRouter 402 no credits, free tier 429, then no venue network). The UI shows FAILED/QUOTA honestly and retries.
-The AI never acknowledges, assigns, closes or escalates.
+suggested next steps. Today's status: one **live, schema-valid Gemma 4 reply was obtained at 15:01** (`google/gemma-4-31b-it:free` via
+OpenRouter, 12.2 s, saved in `docs/ai-proof/latest.json`); the free tier was rate-limited (429) for most of the afternoon
+and paid ids had no credits (402), so analyses are intermittent and the UI shows FAILED/QUOTA with retry when capacity is
+missing. The reply also showed a real limitation — a Mongolian word with stray Greek letters — which is why output is
+advisory and teacher-reviewed. The AI never acknowledges, assigns, closes or escalates.
 
 **Hallucination risk?** Output is advisory, strictly validated, labelled "AI-ийн санал", includes an uncertainty note,
 and the model is told the student text is data (prompt-injection case in the eval set). Final decisions are human.

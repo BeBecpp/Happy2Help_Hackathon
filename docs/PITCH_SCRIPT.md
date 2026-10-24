@@ -33,11 +33,12 @@ The plugin runs on erxes' official SDK and the whole repository is AGPL-3.0 on G
 3. «Уянга багш» (laptop) — улаан самбар → нээх → зураг дээр коридор → «Хүлээн авснаа батлах» → «Ариунаа» томилох.
 4. «Сурагчтай чат» → хариу бичих. «Хариуцагчдын чат» → дотоод тэмдэглэл (сурагч харахгүй — smoke test T04).
 5. Student phone refresh → «Багш хүлээн авсан», хариуцагчид, багшийн мессеж.
-6. Happy AI card: show honestly (READY if the provider had capacity; otherwise FAILED · QUOTA with retry).
+6. Happy AI card: READY shows a real Gemma 4 summary (verified live at 15:01, `google/gemma-4-31b-it`); if capacity is
+   missing it shows FAILED · QUOTA with retry — say which one you see.
 7. 20 s each: Council vote, Patrol QR check-in, Care request.
 
 ## What NOT to say
 - Not "deployed in erxes": the plugin is built on the official SDK and registers through Redis service discovery,
   but gateway composition at an erxes host is not verified on this laptop.
-- Not "AI analysed the case" unless the card shows READY with a Gemma model id.
+- Say "AI analysed the case" only when the card shows READY with a Gemma model id (it did at 15:01; capacity varies).
 - Not an emergency service. Human response is always required.
