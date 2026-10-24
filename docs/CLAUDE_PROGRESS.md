@@ -24,7 +24,7 @@ Everything below must work offline.
 - Phase 1 polish: CSS pass + floor-map labels/pan + 390px overflow fixes; smoke 15/15 after; review shots in `artifacts/screenshots/review-after/`.
 - Phase 2: production build PASS (`NODE_ENV=production NEXT_DIST_DIR=.next-build next build`); external deploy BLOCKED (no network, no host).
 - Phase 3: smoke journey PASS on the live stack after polish; E2E 48/48 unchanged (CSS-only changes).
-- Phase 4: footage re-recorded on polished UI (phone clips cropped to 390×844 — Playwright pads larger canvases with grey); Remotion film written; preview rendered and inspected; fixes applied; final 1080p render next.
+- Phase 4: footage re-recorded on polished UI (phone clips cropped to 390×844 — Playwright pads larger canvases with grey); Remotion film written; preview rendered and inspected; fixes applied; **final 1080p render DONE 15:37** (`video/out/Happy2Help-Launch-Demo.mp4`, verified).
 - Docs: CONTRIBUTING, SECURITY, CODE_OF_CONDUCT, ARCHITECTURE, AI_MODEL, DEMO, HACKDAY_CHANGES, PITCH_SCRIPT, JUDGES_QA, FINAL_RELEASE_CHECKLIST.
 - Gemma 4: live proof exists (`docs/ai-proof/latest.json`, 15:01, gemma-4-31b-it:free).
 

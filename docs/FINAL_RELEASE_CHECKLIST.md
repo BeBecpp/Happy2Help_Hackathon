@@ -37,7 +37,7 @@ Statuses: [PASS] verified by a command or real browser run today · [FAIL] · [U
 - [PASS] `tools/film/make-music.mjs` — original soundtrack 118 s + cues (no third-party audio).
 - [PASS] Remotion project `video/` (Remotion 4.0.496 via junction to the local install), still render OK with
   `--gl angle`, local Chrome as browser.
-- Final MP4: see `video/out/` and `docs/TEST_RESULTS.md` (filled in when the render finishes).
+- [PASS] Final MP4 `video/out/Happy2Help-Launch-Demo.mp4` — 1920×1080 · 30 fps · H.264/AAC · 106 s · 16.5 MB, rendered 15:37 and inspected (contact sheet in `artifacts/film/`). The MP4 itself is git-ignored (size); hand it to the submitter directly.
 
 ## Repository
 - LICENSE AGPL-3.0-only (SDK is AGPL) · README · CONTRIBUTING/SECURITY (see repo) · `.env*` ignored · no secrets tracked.
