@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { assertServerConfig, serverConfig } from "@/lib/server/config";
+import { assertServerConfig, demoPersonasAllowed, serverConfig } from "@/lib/server/config";
 import { findPersona } from "@/lib/server/demo-personas";
 import { callErxesCore, callPlugin } from "@/lib/server/erxes";
 import { ERXES_CORE } from "@/lib/server/operations";
@@ -26,6 +26,7 @@ export async function POST(request: Request) {
   let session: Session;
 
   if (serverConfig.mode === "dev-direct") {
+    if (!demoPersonasAllowed) return NextResponse.json({ error: GENERIC_FAIL }, { status: 403 });
     const persona = typeof body.personaKey === "string" ? findPersona(body.personaKey) : null;
     if (!persona) return NextResponse.json({ error: GENERIC_FAIL }, { status: 401 });
     session = {

@@ -5,6 +5,8 @@ api/generated
 .env
 .env.runtime
 .env.local
+.env.prod
+deploy/.env.prod
 .data/
 *.log
 .DS_Store

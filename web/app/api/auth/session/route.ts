@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { serverConfig } from "@/lib/server/config";
+import { demoPersonasAllowed, serverConfig } from "@/lib/server/config";
 import { DEMO_PERSONAS } from "@/lib/server/demo-personas";
 import { callPlugin } from "@/lib/server/erxes";
 import { readSession } from "@/lib/server/session";
@@ -16,7 +16,7 @@ export async function GET() {
   const session = await readSession();
   const base = {
     mode: serverConfig.mode,
-    personas: serverConfig.mode === "dev-direct"
+    personas: demoPersonasAllowed
       ? DEMO_PERSONAS.map(({ key, kind, label, subtitle, school }) => ({ key, kind, label, subtitle, school }))
       : [],
   };

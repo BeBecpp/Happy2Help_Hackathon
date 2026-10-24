@@ -1,0 +1,81 @@
+# Self-hosted production shape for Happy2Help next to an erxes stack.
+# NOT YET RUN on a real host (no authorized server was available on 2026-10-24) — see docs/DEPLOYMENT.md.
+#
+#   cp deploy/.env.prod.example deploy/.env.prod   # fill in secrets on the server only
+#   docker compose -f deploy/docker-compose.prod.yml --env-file deploy/.env.prod up -d --build
+#
+# Network rule: the plugin trusts the gateway's forwarded identity headers, so it is reachable ONLY on the
+# internal network (no published port). The public entry point is Caddy (HTTPS) → web BFF → erxes gateway.
+name: happy2help
+
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    command: ["--replSet", "rs0", "--bind_ip_all"]
+    volumes: [mongo-data:/data/db]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "try { rs.status().ok } catch (e) { rs.initiate().ok }"]
+      interval: 10s
+      retries: 12
+    networks: [internal]
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD:?set REDIS_PASSWORD}", "--appendonly", "yes"]
+    volumes: [redis-data:/data]
+    networks: [internal]
+
+  plugin-happy2help-api:
+    build: { context: .., dockerfile: Dockerfile }
+    restart: unless-stopped
+    depends_on: { mongo: { condition: service_healthy }, redis: { condition: service_started } }
+    environment:
+      NODE_ENV: production
+      PORT: "3399"
+      MONGO_URL: mongodb://mongo:27017/erxes?replicaSet=rs0
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      # Address the erxes gateway uses to reach this service (written to Redis service discovery).
+      LOAD_BALANCER_ADDRESS: http://plugin-happy2help-api:3399
+      HAPPY2HELP_QR_SECRET: ${HAPPY2HELP_QR_SECRET:?set HAPPY2HELP_QR_SECRET}
+      HAPPY2HELP_TENANT: ${HAPPY2HELP_TENANT:-}
+      HAPPY_AI_PROVIDER: openrouter
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      OPENROUTER_MODEL: ${OPENROUTER_MODEL:-google/gemma-4-26b-a4b-it}
+    networks: [internal]
+
+  web:
+    build: { context: .., dockerfile: web/Dockerfile }
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      H2H_MODE: gateway
+      ERXES_GRAPHQL_URL: ${ERXES_GRAPHQL_URL:?set ERXES_GRAPHQL_URL (erxes gateway /graphql)}
+      ERXES_CP_ID: ${ERXES_CP_ID:-}
+      ERXES_CP_APP_TOKEN: ${ERXES_CP_APP_TOKEN:-}
+      H2H_SESSION_SECRET: ${H2H_SESSION_SECRET:?set H2H_SESSION_SECRET (>=32 chars)}
+    networks: [internal, edge]
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on: [web]
+    ports: ["80:80", "443:443"]
+    environment:
+      H2H_DOMAIN: ${H2H_DOMAIN:?set H2H_DOMAIN (public DNS name)}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+    networks: [edge]
+
+volumes:
+  mongo-data:
+  redis-data:
+  caddy-data:
+
+networks:
+  internal: { internal: true }
+  edge: {}
