@@ -16,7 +16,17 @@ import "server-only";
  */
 export type Mode = "gateway" | "dev-direct";
 
-const mode = (process.env.H2H_MODE === "gateway" ? "gateway" : "dev-direct") as Mode;
+const isProduction = process.env.NODE_ENV === "production";
+const requestedMode = process.env.H2H_MODE;
+// Fail closed: a production build only runs dev-direct when explicitly asked for it; an unset or unknown
+// H2H_MODE means gateway, so a forgotten variable can never expose the fictional persona switcher.
+const mode: Mode = requestedMode === "gateway" ? "gateway" : requestedMode === "dev-direct" || !isProduction ? "dev-direct" : "gateway";
+
+/**
+ * One-tap fictional personas are allowed in development, and in a production build only with the explicit
+ * opt-in H2H_ALLOW_DEMO_PERSONAS=fictional-local-only (judging laptop / CI on localhost). Never on a public host.
+ */
+export const demoPersonasAllowed = mode === "dev-direct" && (!isProduction || process.env.H2H_ALLOW_DEMO_PERSONAS === "fictional-local-only");
 
 export const serverConfig = {
   mode,
@@ -36,5 +46,8 @@ export function assertServerConfig() {
   }
   if (serverConfig.mode === "gateway" && !serverConfig.erxesGraphqlUrl) {
     throw new Error("ERXES_GRAPHQL_URL is required in gateway mode.");
+  }
+  if (serverConfig.mode === "dev-direct" && !demoPersonasAllowed) {
+    throw new Error("dev-direct (fictional persona sign-in) is disabled in production. Use H2H_MODE=gateway behind an erxes gateway.");
   }
 }

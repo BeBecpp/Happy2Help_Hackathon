@@ -1,0 +1,111 @@
+name: infra-verify (real Redis + MongoDB, production builds)
+
+on:
+  push:
+    branches: [main, "infra/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  real-infra:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      redis:
+        image: redis:7
+        ports: ["6379:6379"]
+        options: --health-cmd "redis-cli ping" --health-interval 5s --health-retries 10
+      mongo:
+        image: mongo:7
+        ports: ["27017:27017"]
+        options: --health-cmd "mongosh --quiet --eval 'db.runCommand({ping:1}).ok'" --health-interval 5s --health-retries 20
+    env:
+      HAPPY2HELP_QR_SECRET: ci-qr-secret-not-for-production-000001
+      HAPPY2HELP_TENANT: localhost
+      MONGO_URL: mongodb://127.0.0.1:27017/erxes?directConnection=true
+      H2H_SESSION_SECRET: ci-session-secret-not-for-production-0000000001
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: corepack enable && pnpm --version
+      - run: pnpm install --frozen-lockfile
+
+      - name: Typecheck + unit tests
+        run: |
+          pnpm --filter happy2help_api check
+          pnpm --filter happy2help_web exec tsc --noEmit
+          pnpm --filter happy2help_api test
+
+      - name: Production builds (plugin dist + Next.js)
+        run: |
+          pnpm --filter happy2help_api build
+          pnpm --filter happy2help_web build
+
+      - name: Start plugin (production dist) against REAL Redis + REAL MongoDB
+        env:
+          NODE_ENV: production
+          REDIS_HOST: 127.0.0.1
+          REDIS_PORT: "6379"
+          LOAD_BALANCER_ADDRESS: http://127.0.0.1:3399
+        run: |
+          nohup node api/dist/main.js > plugin.log 2>&1 &
+          for i in $(seq 1 60); do curl -fsS http://127.0.0.1:3399/health && break; sleep 2; done
+          curl -fsS http://127.0.0.1:3399/health
+
+      - name: Seed fictional demo data into REAL MongoDB
+        run: pnpm --filter happy2help_api exec tsx src/scripts/seed.ts
+
+      - name: erxes service discovery keys in REAL Redis
+        run: |
+          node tools/redis-keys.mjs 127.0.0.1 6379 | tee redis-keys.txt
+          grep -q "erxes-service-happy2help = http://127.0.0.1:3399" redis-keys.txt
+          docker run --rm --network host redis:7 redis-cli -h 127.0.0.1 KEYS 'erxes*'
+
+      - name: Federation composition of the live subgraph
+        run: node tools/federation-check.mjs http://127.0.0.1:3399/graphql
+
+      - name: Start web BFF (production build) — demo personas explicitly opted in for localhost CI only
+        env:
+          NODE_ENV: production
+          H2H_MODE: dev-direct
+          H2H_ALLOW_DEMO_PERSONAS: fictional-local-only
+          H2H_PLUGIN_GRAPHQL_URL: http://127.0.0.1:3399/graphql
+        run: |
+          nohup pnpm --filter happy2help_web exec next start -p 3100 > web.log 2>&1 &
+          for i in $(seq 1 60); do curl -fsS http://127.0.0.1:3100/api/auth/session > /dev/null && break; sleep 2; done
+
+      - name: Judge journey through production web → plugin → real Mongo/Redis
+        run: node tools/smoke-bff.mjs http://127.0.0.1:3100
+
+      - name: Production auth guard — persona switcher refused without explicit opt-in
+        env:
+          NODE_ENV: production
+          H2H_PLUGIN_GRAPHQL_URL: http://127.0.0.1:3399/graphql
+        run: |
+          nohup pnpm --filter happy2help_web exec next start -p 3200 > web-guard.log 2>&1 &
+          for i in $(seq 1 60); do curl -fsS http://127.0.0.1:3200/api/auth/session > guard-session.json && break; sleep 2; done
+          cat guard-session.json
+          node -e "const s=require('./guard-session.json'); if (s.mode!=='gateway'||s.personas.length) { console.error('FAIL: personas exposed', s); process.exit(1) } console.log('PASS: mode', s.mode, 'personas', s.personas.length)"
+          code=$(curl -s -o login.json -w '%{http_code}' -X POST -H 'content-type: application/json' -d '{"personaKey":"oyunaa"}' http://127.0.0.1:3200/api/auth/login)
+          cat login.json; echo " status=$code"
+          test "$code" != "200"
+          ! grep -q h2h_session <(curl -s -D - -o /dev/null -X POST -H 'content-type: application/json' -d '{"personaKey":"oyunaa"}' http://127.0.0.1:3200/api/auth/login)
+
+      - name: Full E2E suite (spawns the real plugin per file)
+        run: pnpm --filter happy2help_api test:e2e
+
+      - name: Logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: infra-verify-logs
+          path: |
+            plugin.log
+            web.log
+            web-guard.log
+            redis-keys.txt
+            guard-session.json
+          if-no-files-found: ignore

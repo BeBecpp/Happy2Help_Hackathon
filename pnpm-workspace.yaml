@@ -25,11 +25,11 @@ ignoredBuiltDependencies:
   - protobufjs
 
 allowBuilds:
-  '@apollo/protobufjs': set this to true or false
-  '@google/genai': set this to true or false
-  aws-sdk: set this to true or false
-  esbuild: set this to true or false
-  mongodb-memory-server: set this to true or false
-  msgpackr-extract: set this to true or false
-  protobufjs: set this to true or false
-  unrs-resolver: set this to true or false
+  '@apollo/protobufjs': false
+  '@google/genai': false
+  aws-sdk: false
+  esbuild: true
+  mongodb-memory-server: true
+  msgpackr-extract: false
+  protobufjs: false
+  unrs-resolver: true
