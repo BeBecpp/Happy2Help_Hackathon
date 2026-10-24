@@ -244,6 +244,13 @@ const FAILURE_LABEL: Record<string, string> = {
   NO_DESCRIPTION: "Сурагч тайлбар бичээгүй тул хураангуй үүсгээгүй.",
 };
 
+/** Human label of the model that actually produced (or was asked for) an analysis. */
+export function aiModelLabel(provider?: string | null, modelId?: string | null) {
+  if (provider === "anthropic" || /claude/i.test(modelId ?? "")) return "Claude";
+  if (/gemma/i.test(modelId ?? "") || provider === "openrouter") return "Gemma 4";
+  return "Happy AI";
+}
+
 export function HappyAiCard({ analysis, onRefresh, onRetry }: { analysis: AiAnalysis | null; onRefresh: () => void; onRetry?: () => void }) {
   const state = analysis?.state ?? "PENDING";
   return (
@@ -252,7 +259,7 @@ export function HappyAiCard({ analysis, onRefresh, onRetry }: { analysis: AiAnal
         <span className="happy-ai-card__spark"><Icon.Spark size={22} /></span>
         <div>
           <p className="happy-eyebrow">Happy AI · Багшид туслах хураангуй</p>
-          <h2 id="ai-title">Gemma 4</h2>
+          <h2 id="ai-title">{aiModelLabel(analysis?.provider, analysis?.modelId)}</h2>
         </div>
         {analysis?.modelId && state === "READY" && <span className="happy-ai-card__model">{analysis.modelId}</span>}
       </div>
@@ -273,7 +280,7 @@ export function HappyAiCard({ analysis, onRefresh, onRetry }: { analysis: AiAnal
           </p>
           {analysis?.failureReason && <p className="happy-ai-card__reason">{FAILURE_LABEL[analysis.failureReason] ?? "Шалтгаан: тодорхойгүй."}</p>}
           {state === "FAILED" && (
-            <button type="button" className="happy-text-button" onClick={onRetry ?? onRefresh}><Icon.Refresh size={16} /> {onRetry ? "Gemma 4-өөр дахин шинжлүүлэх" : "Дахин шалгах"}</button>
+            <button type="button" className="happy-text-button" onClick={onRetry ?? onRefresh}><Icon.Refresh size={16} /> {onRetry ? "AI-аар дахин шинжлүүлэх" : "Дахин шалгах"}</button>
           )}
         </div>
       )}
@@ -318,7 +325,7 @@ export function HappyAiCard({ analysis, onRefresh, onRetry }: { analysis: AiAnal
       )}
 
       <p className="happy-ai-card__disclaimer">
-        Энэ бол AI-ийн санал (OpenRouter · Gemma 4, зөвхөн зохиомол demo текст). Эцсийн шийдвэрийг багш гаргана.
+        Энэ бол AI-ийн санал ({analysis?.modelId || aiModelLabel(analysis?.provider, analysis?.modelId)}, зөвхөн зохиомол demo текст). Эцсийн шийдвэрийг багш гаргана.
         {analysis?.generatedAt && state === "READY" ? ` · ${formatDateTime(analysis.generatedAt)}` : ""}
       </p>
     </section>

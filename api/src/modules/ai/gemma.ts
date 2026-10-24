@@ -19,7 +19,7 @@ export interface ChatMessage {
 }
 
 export interface GemmaClient {
-  provider: "google-gemini-api" | "openrouter";
+  provider: "google-gemini-api" | "openrouter" | "anthropic";
   generate(userPrompt: string, signal: AbortSignal): Promise<{ text: string; modelId: string }>;
   /** Free-form chat (student assistant). The caller supplies the system message. */
   chat(messages: ChatMessage[], signal: AbortSignal, opts?: { maxTokens?: number }): Promise<{ text: string; modelId: string }>;
@@ -152,11 +152,63 @@ function openRouterClient(apiKey: string, modelId: string): GemmaClient {
   }
 }
 
-/** Picks the provider from HAPPY_AI_PROVIDER, else whichever key is present (Gemini first). */
+/**
+ * Anthropic Claude via the Messages API (`POST /v1/messages`). Same prompts and the same Zod validation as
+ * the Gemma path; only the transport differs. The key is sent server-side in `x-api-key` and never logged.
+ */
+function anthropicClient(apiKey: string, modelId: string): GemmaClient {
+  const base = aiConfig.anthropicBaseUrl;
+  const headers = { "x-api-key": apiKey, "anthropic-version": "2023-06-01", "content-type": "application/json" };
+  const client: GemmaClient = {
+    provider: "anthropic",
+    generate(userPrompt, signal) {
+      return client.chat([{ role: "system", content: SYSTEM_INSTRUCTION_MN }, { role: "user", content: userPrompt }], signal, { maxTokens: 800 });
+    },
+    async chat(messages, signal, opts = {}) {
+      const system = messages.filter((m) => m.role === "system").map((m) => m.content).join("\n\n");
+      const turns = messages.filter((m) => m.role !== "system").map((m) => ({ role: m.role, content: m.content }));
+      for (let attempt = 0; attempt < 2; attempt++) {
+        budget();
+        const res = await fetch(`${base}/messages`, {
+          method: "POST",
+          headers,
+          signal,
+          body: JSON.stringify({ model: modelId, max_tokens: opts.maxTokens ?? 600, temperature: 0.2, ...(system ? { system } : {}), messages: turns }),
+        });
+        if (res.ok) {
+          const json = (await res.json()) as { content?: Array<{ type: string; text?: string }>; model?: string };
+          const text = (json.content ?? []).filter((c) => c.type === "text").map((c) => c.text ?? "").join("");
+          if (!text) throw new Error("EMPTY_REPLY");
+          return { text, modelId: json.model ?? modelId };
+        }
+        const detail = (await res.text().catch(() => "")).slice(0, 300);
+        // 429 rate limit / 529 overloaded / 503: one short backoff retry, then surface the error.
+        if ((res.status === 429 || res.status === 529 || res.status === 503) && attempt === 0) {
+          const retryAfter = Number(res.headers.get("retry-after")) || 0;
+          await sleep(Math.min(Math.max(retryAfter * 1000, 1500), 5000), signal);
+          continue;
+        }
+        throw new Error(`${res.status} ${detail}`);
+      }
+      throw new Error("PROVIDER_ERROR");
+    },
+    async listGemmaModels() {
+      // Despite the interface name, lists the Claude models this key can use (evidence for ai:verify).
+      const res = await fetch(`${base}/models?limit=100`, { headers });
+      if (!res.ok) throw new Error(`${res.status} models list failed`);
+      const json = (await res.json()) as { data?: Array<{ id: string }> };
+      return (json.data ?? []).map((m) => m.id).filter((id) => /claude/i.test(id)).sort();
+    },
+  };
+  return client;
+}
+
+/** Picks the provider from HAPPY_AI_PROVIDER, else whichever key is present (OpenRouter first). */
 export function createGemmaClient(): GemmaClient {
   const provider = aiConfig.provider;
   if (provider === "google-gemini-api") return geminiClient(aiConfig.geminiKey!, aiConfig.modelId);
   if (provider === "openrouter") return openRouterClient(aiConfig.openRouterKey!, aiConfig.modelId);
+  if (provider === "anthropic") return anthropicClient(aiConfig.anthropicKey!, aiConfig.modelId);
   throw new AiDisabledError();
 }
 
@@ -164,7 +216,7 @@ export function createGemmaClient(): GemmaClient {
 export function classifyAiFailure(error: unknown): string {
   const message = error instanceof Error ? error.message : String(error);
   if (/abort|timeout|timed out/i.test(message)) return "TIMEOUT";
-  if (/429|quota|rate|RESOURCE_EXHAUSTED|insufficient/i.test(message)) return "QUOTA";
+  if (/429|529|overloaded|quota|rate|RESOURCE_EXHAUSTED|insufficient|credit balance/i.test(message)) return "QUOTA";
   if (/401|403|API key|PERMISSION_DENIED|UNAUTHENTICATED|No auth/i.test(message)) return "AUTH";
   if (/404|not found|NOT_FOUND|No endpoints/i.test(message)) return "MODEL_NOT_FOUND";
   if (/NO_JSON_OBJECT|Unexpected token|JSON|REPLY_TOO_LONG|EMPTY_REPLY/i.test(message)) return "INVALID_OUTPUT";

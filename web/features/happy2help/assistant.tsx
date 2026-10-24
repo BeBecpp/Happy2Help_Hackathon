@@ -16,7 +16,7 @@ const SUGGESTIONS = [
 interface Turn extends AssistantTurn { modelId?: string }
 
 /**
- * Student Happy AI chat. Every reply is a real Gemma 4 call through the plugin; when the model is
+ * Student Happy AI chat. Every reply is a real model call through the plugin (Gemma 4 or Claude); when the model is
  * unavailable the error is shown as-is and nothing is invented. History stays in this browser tab.
  */
 export function AssistantScreen() {
@@ -65,7 +65,7 @@ export function AssistantScreen() {
 
   return (
     <div className="happy-page happy-assistant">
-      <p className="happy-eyebrow">Happy AI · Gemma 4</p>
+      <p className="happy-eyebrow">Happy AI</p>
       <h1><Icon.Spark size={26} /> Happy AI-тай ярилцах</h1>
       <div className="happy-assistant__notice" role="note">
         <p><strong>Би AI туслах, багш биш.</strong> Ерөнхий зөвлөгөө өгнө. Хувийн мэдээлэл (бүтэн нэр, утас, хаяг) бүү бичээрэй. DEMO орчин.</p>
@@ -87,7 +87,7 @@ export function AssistantScreen() {
           )}
           {turns.map((t, i) => (
             <div key={i} className={`happy-bubble ${t.role === "user" ? "happy-bubble--mine" : "happy-bubble--ai"}`}>
-              {t.role === "assistant" && <span className="happy-bubble__sender">Happy AI · {t.modelId ?? "Gemma 4"}</span>}
+              {t.role === "assistant" && <span className="happy-bubble__sender">Happy AI · {t.modelId ?? "AI"}</span>}
               <p className="happy-bubble__body">{t.content}</p>
             </div>
           ))}

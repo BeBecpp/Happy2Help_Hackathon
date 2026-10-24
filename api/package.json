@@ -13,6 +13,7 @@
     "seed": "tsx --env-file-if-exists=../.env --env-file-if-exists=../.env.runtime src/scripts/seed.ts",
     "ai:verify": "tsx --env-file-if-exists=../.env --env-file-if-exists=../.env.runtime src/scripts/verify-ai.ts",
     "ai:diag": "tsx --env-file-if-exists=../.env --env-file-if-exists=../.env.runtime src/scripts/diag-openrouter.ts",
+    "ai:diag-anthropic": "tsx --env-file-if-exists=../.env --env-file-if-exists=../.env.runtime src/scripts/diag-anthropic.ts",
     "ai:eval": "tsx --env-file-if-exists=../.env --env-file-if-exists=../.env.runtime src/scripts/eval-ai.ts",
     "test": "tsx --test src/tests/unit/*.test.ts",
     "test:e2e": "tsx --test --test-concurrency=1 --test-timeout=180000 src/tests/e2e/*.test.ts"

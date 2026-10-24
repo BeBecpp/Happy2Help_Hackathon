@@ -10,7 +10,7 @@ export function ExploreScreen() {
   const { session } = useSession();
   const roles = session?.roles ?? [];
   const items = [
-    { key: "ai", title: "Happy AI · Gemma 4 туслах", desc: "Сургуулийн амьдрал, стресс, дээрэлхэлтийн талаар AI-аас зөвлөгөө авах. AI багш биш.", href: "/student/ai", icon: <Icon.Spark size={22} />, state: "AI" },
+    { key: "ai", title: "Happy AI туслах", desc: "Сургуулийн амьдрал, стресс, дээрэлхэлтийн талаар AI-аас зөвлөгөө авах. AI багш биш.", href: "/student/ai", icon: <Icon.Spark size={22} />, state: "AI" },
     { key: "incidents", title: "Миний хүсэлтүүд", desc: "Илгээсэн хүсэлтийн төлөв, хариуцагч, чат.", href: "/student/incidents", icon: <Icon.List size={22} />, state: "Бэлэн" },
     { key: "care", title: "Happy Care · Эмч, нийгмийн ажилтан", desc: "Нууцлалтай хүсэлт илгээж, хариуцсан мэргэжилтэнтэй чатлах.", href: "/student/care", icon: <Icon.Heart size={22} />, state: "Бэлэн" },
     { key: "council", title: "Happy Council · Сурагчдын зөвлөл", desc: "Санал илгээх, баталгаажсан саналыг дэмжих, хэрэгжилтийг харах.", href: "/student/council", icon: <Icon.Spark size={22} />, state: roles.includes("COUNCIL_MEMBER") ? "Гишүүн" : "Бэлэн" },

@@ -24,7 +24,7 @@ const FICTIONAL_CASE = {
 
 async function main() {
   if (!aiConfig.enabled) {
-    console.error("No GEMINI_API_KEY or OPENROUTER_API_KEY is set. Nothing was called. Happy AI stays disabled; the SOS flow is unaffected.");
+    console.error("No AI key is set (OPENROUTER_API_KEY / ANTHROPIC_API_KEY). Nothing was called. Happy AI stays disabled; the SOS flow is unaffected.");
     process.exit(2);
   }
   const client = createGemmaClient();
@@ -69,7 +69,10 @@ async function main() {
   const proof = {
     verifiedAt: new Date().toISOString(),
     provider: aiConfig.provider,
-    endpoint: aiConfig.provider === "openrouter" ? "https://openrouter.ai/api/v1/chat/completions (OpenAI-compatible)" : "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent (via @google/genai)",
+    endpoint:
+      aiConfig.provider === "openrouter" ? "https://openrouter.ai/api/v1/chat/completions (OpenAI-compatible)"
+      : aiConfig.provider === "anthropic" ? `${aiConfig.anthropicBaseUrl}/messages (Anthropic Messages API)`
+      : "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent (via @google/genai)",
     modelId,
     modelListedByApi: configuredAvailable,
     gemmaModelsVisible: models,
@@ -80,9 +83,11 @@ async function main() {
   };
   const dir = join(__dirname, "../../../docs/ai-proof");
   mkdirSync(dir, { recursive: true });
-  writeFileSync(join(dir, "latest.json"), JSON.stringify(proof, null, 2) + "\n");
-  console.log(`\nLive Gemma 4 response validated in ${latencyMs} ms:\n${JSON.stringify(output, null, 2)}`);
-  console.log(`\nProof written to docs/ai-proof/latest.json (no secrets).`);
+  // Each provider keeps its own proof file; the Gemma 4 proof (latest.json) is never overwritten by Claude.
+  const file = aiConfig.provider === "anthropic" ? "anthropic-latest.json" : "latest.json";
+  writeFileSync(join(dir, file), JSON.stringify(proof, null, 2) + "\n");
+  console.log(`\nLive ${aiConfig.provider} response (${modelId}) validated in ${latencyMs} ms:\n${JSON.stringify(output, null, 2)}`);
+  console.log(`\nProof written to docs/ai-proof/${file} (no secrets).`);
 }
 
 main()

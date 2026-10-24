@@ -44,7 +44,11 @@ const envSchema = z.object({
   /** Gemma 4 slug on OpenRouter, e.g. google/gemma-4-26b-a4b-it or google/gemma-4-26b-a4b-it:free */
   OPENROUTER_MODEL: optional,
   GEMINI_API_KEY: optional,
-  HAPPY_AI_PROVIDER: z.enum(["auto", "gemini", "openrouter"]).default("auto"),
+  /** Anthropic Claude (Messages API). Model id as listed by GET /v1/models, e.g. a claude-haiku-* id. */
+  ANTHROPIC_API_KEY: optional,
+  ANTHROPIC_BASE_URL: z.string().url().default("https://api.anthropic.com/v1"),
+  ANTHROPIC_MODEL: optional,
+  HAPPY_AI_PROVIDER: z.enum(["auto", "gemini", "openrouter", "anthropic"]).default("auto"),
   /** Legacy alias of OPENROUTER_MODEL (OPENROUTER_MODEL wins when both are set). */
   HAPPY_AI_MODEL: optional,
   /** Comma-separated Gemma 4 slugs tried in order when the configured one is rate-limited / out of credits. */
@@ -55,24 +59,31 @@ const envSchema = z.object({
 
 export const env = envSchema.parse(process.env);
 
-const resolvedProvider: "google-gemini-api" | "openrouter" | "none" =
+const resolvedProvider: "google-gemini-api" | "openrouter" | "anthropic" | "none" =
   env.HAPPY_AI_PROVIDER === "gemini"
     ? env.GEMINI_API_KEY ? "google-gemini-api" : "none"
     : env.HAPPY_AI_PROVIDER === "openrouter"
       ? env.OPENROUTER_API_KEY ? "openrouter" : "none"
-      : env.OPENROUTER_API_KEY ? "openrouter" : env.GEMINI_API_KEY ? "google-gemini-api" : "none";
+      : env.HAPPY_AI_PROVIDER === "anthropic"
+        ? env.ANTHROPIC_API_KEY ? "anthropic" : "none"
+        : env.OPENROUTER_API_KEY ? "openrouter" : env.ANTHROPIC_API_KEY ? "anthropic" : env.GEMINI_API_KEY ? "google-gemini-api" : "none";
 
 const openRouterModel = env.OPENROUTER_MODEL || env.HAPPY_AI_MODEL || "google/gemma-4-26b-a4b-it";
 
 export const aiConfig = {
   enabled: resolvedProvider !== "none",
   provider: resolvedProvider,
-  modelId: resolvedProvider === "google-gemini-api" ? env.HAPPY_AI_MODEL || "gemma-4-26b-a4b-it" : openRouterModel,
+  modelId:
+    resolvedProvider === "google-gemini-api" ? env.HAPPY_AI_MODEL || "gemma-4-26b-a4b-it"
+    : resolvedProvider === "anthropic" ? env.ANTHROPIC_MODEL || "claude-haiku-4-5"
+    : openRouterModel,
   fallbackModels: (env.HAPPY_AI_FALLBACK_MODELS ?? (resolvedProvider === "openrouter" ? "google/gemma-4-26b-a4b-it:free,google/gemma-4-31b-it:free,google/gemma-4-26b-a4b-it,google/gemma-4-31b-it" : ""))
     .split(",")
     .map((m) => m.trim())
     .filter(Boolean),
   openRouterBaseUrl: env.OPENROUTER_BASE_URL.replace(/\/+$/, ""),
+  anthropicKey: env.ANTHROPIC_API_KEY,
+  anthropicBaseUrl: env.ANTHROPIC_BASE_URL.replace(/\/+$/, ""),
   geminiKey: env.GEMINI_API_KEY,
   openRouterKey: env.OPENROUTER_API_KEY,
   timeoutMs: env.HAPPY_AI_TIMEOUT_MS,
