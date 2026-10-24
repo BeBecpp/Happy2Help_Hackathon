@@ -136,6 +136,7 @@ Latest results: [`docs/TEST_RESULTS.md`](docs/TEST_RESULTS.md).
   architecture from the code → security (tenant/school/role/case, separate chat rooms, idempotency) → Gemma 4 with the 15:42
   live proof → AGPL-3.0 code vs Gemma open weights → built/next → closing with a scannable repository QR. Timed Mongolian
   presenter script + 3-minute cut: `docs/KEYNOTE_SCRIPT.md`. Music only under opening/closing; on-screen subtitles throughout.
+- **Judges pitch deck (3 min + live demo)** — `presentation/Happy2Help-Final-Judges-Pitch.pptx` (editable, speaker notes in Mongolian), PDF, previews and `presentation/PITCH_SCRIPT.md` with the browser-switch cue. Built from the real brand assets and real screenshots by `presentation/build_pitch.py`.
 - **Teaser (1:46)** — the earlier launch film below.
 
 - `video/` — Remotion 4 project (one continuous film ≈106 s, 1920×1080, 30 fps): emotional opening → "That's why we built

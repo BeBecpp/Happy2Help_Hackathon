@@ -34,6 +34,7 @@ Statuses: [PASS] verified by a command or real browser run today · [FAIL] · [U
   live analyses are intermittent; the UI shows FAILED · QUOTA with automatic retry when capacity is missing.
 
 ## Film
+- [PASS] **Judges pitch deck** `presentation/Happy2Help-Final-Judges-Pitch.pptx` + `.pdf` (8 slides, 16:9, real brand + real screenshots, Mongolian notes; Happy AI slot shows the real 15:42 verified output as a labelled card, not a UI mock). Previews inspected: `presentation/previews/contact-sheet.png`. Script: `presentation/PITCH_SCRIPT.md`.
 - [PASS] **Technical keynote** `video/out/Happy2Help-Technical-Keynote.mp4` = `artifacts/film/Happy2Help-Technical-Keynote.mp4` (v2 final 16:38, 5:04, 11 chapters, slow presenter pacing, on-screen Mongolian subtitles, music only at opening/closing). Script + 3-minute cut: `docs/KEYNOTE_SCRIPT.md`. Real zone QR decoded with OpenCV; repository QR decoded with OpenCV. Presenter-controlled HTML deck: NOT built (time) — pause points documented in the script instead.
 - [PASS] `tools/film/record-footage.mjs` — six real clips recorded on the polished UI (15:27), transcoded with NVENC.
 - [PASS] `tools/film/make-music.mjs` — original soundtrack 118 s + cues (no third-party audio).
