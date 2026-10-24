@@ -131,6 +131,25 @@ describe("E4 + E6 · responsible-adult assignment, status transitions and the ad
   });
 });
 
+describe("F1 · federation: the running plugin's subgraph composes into a supergraph (what an erxes gateway does)", () => {
+  it("serves _service.sdl with the Federation 2 link and composes with a core stand-in", async () => {
+    const r = await gql<{ _service: { sdl: string } }>(stack.pluginUrl, { "content-type": "application/json", hostname: "localhost" }, `{ _service { sdl } }`);
+    const sdl = r.data!._service.sdl;
+    assert.match(sdl, /specs\.apollo\.dev\/federation\/v2/);
+    const { composeServices } = await import("@apollo/composition");
+    const { gql: tag } = await import("graphql-tag");
+    const core = tag(`extend schema @link(url: "https://specs.apollo.dev/federation/v2.9", import: ["@key"])\ntype Query { coreStandInPing: String }`);
+    const result = composeServices([
+      { name: "core", typeDefs: core, url: "http://core.invalid/graphql" },
+      { name: "happy2help", typeDefs: tag(sdl), url: stack.pluginUrl },
+    ]);
+    assert.equal(result.errors, undefined, JSON.stringify(result.errors?.map((e) => e.message)));
+    for (const op of ["happy2helpCreateIncident", "happy2helpStaffRoom", "happy2helpIncidentAssign", "happy2helpAssistantAsk", "happy2helpZones"]) {
+      assert.ok(result.supergraphSdl!.includes(op), `${op} is in the supergraph`);
+    }
+  });
+});
+
 describe("E7 · case scope: unrelated adults of the same school get nothing; critical first; idempotent messages", () => {
   let id = "";
   let roomId = "";

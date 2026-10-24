@@ -10,7 +10,8 @@ Revision: `main` @ `2ac9a70` (local only, not pushed). All people, schools and t
 | 14:33 | `pnpm --filter happy2help_api check` (tsc) | PASS |
 | 14:10 | `pnpm --filter happy2help_web exec tsc --noEmit` | PASS (was failing at 13:25 on `FloorMap.tsx` types) |
 | 13:25 | `pnpm --filter happy2help_api test` (unit: AI contract, prompt sanitisation, QR HMAC) | PASS 12/12 |
-| 14:35 | `pnpm --filter happy2help_api test:e2e` (real `startPlugin` process + mongodb-memory-server) | **PASS 45/45** — sos-flow 13, chat, modules (Council/Patrol/Care), ai-pipeline (fixtures), response E1/E4/E6/E7 |
+| 14:30 | `pnpm --filter happy2help_api test:e2e` (real `startPlugin` process + mongodb-memory-server) | **PASS 47/47** — adds F1 federation composition and a concurrent Patrol check-in test |
+| 14:35 | same, previous run | PASS 45/45 — sos-flow 13, chat, modules (Council/Patrol/Care), ai-pipeline (fixtures), response E1/E4/E6/E7 |
 | 14:20 | same, previous run | FAIL 1 — Council duplicate vote accepted on a fresh DB (unique index not built yet). Fixed with `ensureIndexes()` awaited in the plugin context; re-run above passes |
 | — | `next build` (web production build) | NOT_RUN — would overwrite `.next` of the owner's running dev server |
 
@@ -44,6 +45,14 @@ assign Ариунаа → teacher message → staff room tab → teacher map →
 teacher's message. Screenshots in `artifacts/screenshots/` (01, 02, 02b, 03, 04, 04b, 05, 06, 07, 08).
 Note: full-page captures draw the sticky header mid-page; that is a capture artifact, not the live layout.
 
+## erxes integration checks (local)
+
+| Command | Result |
+|---|---|
+| `node tools/redis-keys.mjs` (dev Redis stub :6399) | `erxes-service-happy2help = http://localhost:3399`, `erxes-service-owner:happy2help = <uuid>`, `erxesservice:config:happy2help = {dbConnectionString, meta.permissions…}` — written by `startPlugin` |
+| `node tools/federation-check.mjs` | subgraph SDL 14 730 chars, Federation 2 `@link` present, 40 `happy2help*` root fields; composed with a core stand-in via `@apollo/composition` → **PASS 40/40 fields in supergraph** |
+| erxes gateway / Core UI remote / hosted tenant | NOT VERIFIED / NOT IMPLEMENTED / BLOCKED (see CLAUDE_HANDOFF §4) |
+
 ## Happy AI · Gemma 4 via OpenRouter
 
 | When | Command | Result |
@@ -52,6 +61,7 @@ Note: full-page captures draw the sticky header mid-page; that is a capture arti
 | 14:03 | `pnpm --filter happy2help_api ai:diag` | key valid, free tier, usage 0 / limit 50; `gemma-4-26b-a4b-it:free` and `gemma-4-31b-it:free` → **429 temporarily rate-limited upstream**; `gemma-4-26b-a4b-it` and `gemma-4-31b-it` → **402 never purchased credits** |
 | 14:16 | `node tools/ai-live-check.mjs <id>` | incident #O27Q analysis stored `FAILED · QUOTA` (provider openrouter). SOS, acknowledge, assignment and chat all completed regardless (T7 resilience: PASS) |
 | 14:31 | `pnpm ai:verify` | `fetch failed`; `openrouter.ai` DNS did not resolve from the laptop (venue network) |
+| 14:45 | `ai:diag`, `Invoke-WebRequest https://www.google.com` | DNS resolves and TCP to 1.1.1.1:443 succeeds, but every HTTPS request times out (Google included) → network-side blocker |
 
 No live Gemma 4 output has been obtained or persisted yet; nothing in the UI pretends otherwise.
 Unblock: add OpenRouter credits (paid slug) or wait for upstream free capacity, then `pnpm ai:verify`.

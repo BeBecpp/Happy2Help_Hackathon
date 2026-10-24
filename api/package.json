@@ -26,6 +26,7 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@apollo/composition": "^2.14.4",
     "@apollo/subgraph": "^2.15.1",
     "@types/node": "^22.20.4",
     "mongodb-memory-server": "^10.2.3",

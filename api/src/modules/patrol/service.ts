@@ -53,12 +53,14 @@ export async function checkIn(models: IModels, actor: Actor, shiftId: string, zo
     if (!verifyZoneSig(shift.zoneId, zoneSig)) fail("ZONE_UNAVAILABLE", "QR код энэ ээлжийн байршилд тохирохгүй байна.");
     source = "QR";
   }
+  const own = { _id: shiftId, ...scope(actor), memberPrincipalId: actor.principalId };
   const updated = await models.Shifts.findOneAndUpdate(
-    { _id: shiftId, status: "PLANNED" },
+    { ...own, status: "PLANNED" },
     { $set: { status: "CHECKED_IN", checkedInAt: new Date(), checkInSource: source } },
     { new: true },
   ).lean<IShiftDocument>();
-  return updated ?? shift;
+  // A concurrent duplicate loses the conditional update and gets the already-stored check-in back.
+  return updated ?? (await models.Shifts.findOne(own).lean<IShiftDocument>()) ?? shift;
 }
 
 export async function checkOut(models: IModels, actor: Actor, shiftId: string) {

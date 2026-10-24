@@ -115,6 +115,22 @@ describe("T5 · Happy Patrol: supervisor creates shift → member checks in (QR 
     const sos = await gql(stack.pluginUrl, headersFor("togoldor"), `{ happy2helpTeacherIncidents { _id } }`);
     assert.equal(sos.errors?.[0]?.extensions?.code, "FORBIDDEN", "patrol member cannot read incidents");
   });
+  it("two simultaneous check-ins on one shift record exactly one check-in; a later repeat is refused", async () => {
+    const start = new Date(Date.now() - 60_000).toISOString();
+    const end = new Date(Date.now() + 30 * 60_000).toISOString();
+    const created = await gql<{ happy2helpShiftCreate: { _id: string } }>(stack.pluginUrl, headersFor("ganbaatar"),
+      `mutation($input: Happy2helpShiftInput!) { happy2helpShiftCreate(input: $input) { _id } }`, { input: { memberPrincipalId: "cp-demo-togoldor", zoneId, startsAt: start, endsAt: end } });
+    const id = created.data!.happy2helpShiftCreate._id;
+    const checkIn = () => gql<{ happy2helpShiftCheckIn: { status: string; checkedInAt: string } }>(stack.pluginUrl, headersFor("togoldor"), `mutation { happy2helpShiftCheckIn(_id: "${id}") { status checkedInAt } }`);
+    const both = await Promise.all([checkIn(), checkIn()]);
+    const ok = both.filter((r) => !r.errors);
+    assert.ok(ok.length >= 1);
+    assert.ok(ok.every((r) => r.data!.happy2helpShiftCheckIn.status === "CHECKED_IN"));
+    assert.equal(new Set(ok.map((r) => r.data!.happy2helpShiftCheckIn.checkedInAt)).size, 1, "one stored check-in time");
+    assert.ok(both.filter((r) => r.errors).every((r) => r.errors![0]!.extensions?.code === "VALIDATION_ERROR"));
+    const later = await checkIn();
+    assert.equal(later.errors?.[0]?.extensions?.code, "VALIDATION_ERROR");
+  });
 });
 
 describe("T6 · Happy Care: student → nurse request → only the nurse can read / acknowledge", () => {
