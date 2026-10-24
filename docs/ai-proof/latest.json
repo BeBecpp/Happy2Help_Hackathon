@@ -1,0 +1,44 @@
+{
+  "verifiedAt": "2026-10-24T07:01:45.375Z",
+  "provider": "openrouter",
+  "endpoint": "https://openrouter.ai/api/v1/chat/completions (OpenAI-compatible)",
+  "modelId": "google/gemma-4-31b-it:free",
+  "modelListedByApi": true,
+  "gemmaModelsVisible": [
+    "google/gemma-2-27b-it",
+    "google/gemma-3-12b-it",
+    "google/gemma-3-27b-it",
+    "google/gemma-3-4b-it",
+    "google/gemma-4-26b-a4b-it",
+    "google/gemma-4-26b-a4b-it:free",
+    "google/gemma-4-31b-it",
+    "google/gemma-4-31b-it:free"
+  ],
+  "promptVersion": "happy-ai-gemma4-v1",
+  "latencyMs": 12240,
+  "input": {
+    "category": "BULLYING",
+    "zoneNameMn": "Коридор",
+    "description": "Долоо хоногийн турш ахлах ангийн хоёр хүү намайг коридорт тулгаж, нэрээр доромжилж, цүнхээ минь булаадаг. Өнөөдөр бас мөнгө нэхсэн. Би айж байна.",
+    "note": "fictional demo text, no real person"
+  },
+  "validatedOutput": {
+    "categorySuggestion": "BULLYING",
+    "urgency": "HIGH",
+    "confidence": "HIGH",
+    "summaryMn": "Ахлах ангийн хоёр хүү долоо хоногийн турш коридорт сурагчийг доромжилж, цүнх булааж, мөнгө нэхэж байна. Сурагч айдас мэдэрч байна.",
+    "riskIndicatorsMn": [
+      "Долоо хоногийн турш үргэлжилсэн дээрэлхэлт",
+      "Нэрээр доромжлох",
+      "Цүнх булаах, мөнгө нэхэх",
+      "Сурагчийн айдас"
+    ],
+    "teacherActionsMn": [
+      "Сурагчтай ярилцаж, нөхцөл байдлыг нарийвчлан тодруулах",
+      "Ахлах ангийн хүүстэй уулзаж, γεγονыг шалгах",
+      "Сургуулийн удирдлага болон эцэг эхчүүдэд мэдэгдэх",
+      "Сурагчийн аюулгүй байдлыг хангах арга хэмжээ авах"
+    ],
+    "uncertaintyNoteMn": ""
+  }
+}

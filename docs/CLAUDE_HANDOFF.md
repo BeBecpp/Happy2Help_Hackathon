@@ -137,9 +137,10 @@ Provision: copy `.env.example` → `.env` (gitignored); `tools/dev-stack.mjs` ge
 - Tracked-file secret scan (OpenRouter/Google/GitHub keys, private keys, credentialed Mongo URLs): no hits.
 
 ## 12. Known bugs and blockers (by risk)
-1. **No live Gemma 4 output** — `pnpm --filter happy2help_api ai:diag`: paid slugs 402 (no credits), `:free`
-   slugs 429 (upstream rate limit); since ~14:30 HTTPS from the laptop times out (`fetch failed`). Files:
-   `api/src/modules/ai/gemma.ts`, `config.ts`. Fix: credits + working network, then `pnpm ai:verify`.
+1. **Gemma 4 capacity** — a live call DID succeed at 15:01 (`google/gemma-4-31b-it:free`, proof in
+   `docs/ai-proof/latest.json`), but free slugs are usually 429 and paid slugs 402 (no credits), so in-app
+   analyses mostly stay `FAILED · QUOTA` until the sweeper hits a free window. Fix for a reliable demo: add
+   OpenRouter credits (paid `google/gemma-4-26b-a4b-it`). Output quality note: one step mixed in a Greek word.
 2. **No erxes Core UI remote** — `erxes.json` `ui` block is declarative only. Risk for the erxes Choice track.
 3. **Gateway mode untested** — `web/lib/server/erxes.ts` login + forwarding never ran against a gateway.
 4. QR camera untested on a phone. 5. Full-page screenshots draw the sticky header mid-page (capture artifact).

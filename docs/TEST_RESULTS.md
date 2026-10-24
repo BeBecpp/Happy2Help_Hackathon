@@ -69,9 +69,12 @@ Note: full-page captures draw the sticky header mid-page; that is a capture arti
 | 14:55 | `npx tsx … src/scripts/verify-ai.ts --retry 40` (background, every 45 s) | running; network dropped again mid-run (`fetch failed`) — see `%TEMP%\h2h-aiverify-loop.txt` |
 | 14:55 | `ai-pipeline.test.ts` | PASS 8/8 incl. retry sweep (QUOTA → READY on retry, overlapping sweeps call once per row, MAX_ATTEMPTS respected) |
 
+| **15:01** | `verify-ai.ts --retry 40`, attempt 29 | **PASS — live Gemma 4 output**: `google/gemma-4-31b-it:free` via OpenRouter `chat/completions`, 12 240 ms, Zod-validated (BULLYING · HIGH · HIGH, Mongolian summary, 4 indicators, 4 teacher steps). Proof: `docs/ai-proof/latest.json`. Limitation seen: one step mixes a Greek word («γεγονыг») into Mongolian text |
+| 15:03 | `node tools/ai-live-check.mjs <#O27Q>` | demo incident still `FAILED · QUOTA`; student assistant `AI_UNAVAILABLE (QUOTA)` — free capacity windows are short; the sweeper keeps retrying |
+
 The running plugin now re-tries retryable FAILED analyses every 90 s, so existing demo incidents turn READY by
-themselves once capacity exists. No live Gemma 4 output has been obtained or persisted yet; nothing in the UI
-pretends otherwise.
+themselves once capacity exists. A live Gemma 4 response has been obtained by the verification script (above);
+an incident card in the app showing READY from a live call is still pending capacity.
 Unblock: add OpenRouter credits (paid slug) or wait for upstream free capacity, then `pnpm ai:verify`.
 
 ## Not verified

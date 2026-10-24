@@ -122,8 +122,9 @@ Latest results: [`docs/TEST_RESULTS.md`](docs/TEST_RESULTS.md).
 - Tests: `ai-pipeline.test.ts` (fixtures, labelled as such) covers READY / FAILED / SKIPPED, invalid JSON, schema
   violation, timeout and quota. Evaluation set: `api/eval/incidents.mn.json` (10 fictional Mongolian cases, incl.
   a prompt-injection case).
-- **Live call status at submission time:** see `docs/ai-proof/` and `docs/TEST_RESULTS.md`. If `latest.json` is
-  absent, no live Gemma output was obtained. At 14:30 local: the key is valid (free tier, 0 used), the paid Gemma 4
+- **Live call verified 15:01 local:** `google/gemma-4-31b-it:free` via OpenRouter returned a Zod-valid Mongolian
+  analysis of a fictional bullying report in 12.2 s — see [`docs/ai-proof/latest.json`](docs/ai-proof/latest.json).
+  One teacher step mixed a Greek word into the Mongolian text: outputs are drafts for a human, never decisions. At 14:30 local: the key is valid (free tier, 0 used), the paid Gemma 4
   slugs return `402 never purchased credits` and the `:free` slugs return `429 temporarily rate-limited upstream`.
   The app records these as `FAILED · QUOTA` and keeps working; adding OpenRouter credits unblocks it with no code change.
 
