@@ -15,8 +15,10 @@ body {
   text-size-adjust: 100%;
 }
 
+/* Local font stack with reliable Mongolian Cyrillic coverage (no network fetch at build time). */
+:root { --font-happy: "Noto Sans", "Segoe UI", "Segoe UI Variable Text", system-ui, -apple-system, Roboto, sans-serif; }
 body {
-  font-family: var(--font-happy), "Noto Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: var(--font-happy);
 }
 
 img,

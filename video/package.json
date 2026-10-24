@@ -1,0 +1,21 @@
+{
+  "name": "happy2help-film",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Happy2Help — one-film launch + real product demo (Remotion). node_modules is a junction to the local Remotion install (see README).",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render:preview": "remotion render src/index.ts Happy2HelpFilm out/preview-720p.mp4 --scale 0.667 --crf 24",
+    "render": "remotion render src/index.ts Happy2HelpFilm out/Happy2Help-Launch-Demo.mp4 --codec h264 --crf 18"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.496",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "remotion": "4.0.496"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.7",
+    "typescript": "5.9.3"
+  }
+}

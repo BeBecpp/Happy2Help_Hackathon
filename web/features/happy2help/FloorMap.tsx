@@ -110,6 +110,7 @@ export function FloorMap({
           </button>
         ))}
       </div>
+      <div className="happy-map__scroll">
       <svg
         viewBox={`0 0 ${W} ${H}`}
         className="happy-map__svg"
@@ -123,8 +124,8 @@ export function FloorMap({
           const zonePins = pinsByZone.get(z._id) ?? [];
           const critical = zonePins.some((p) => p.severity === "CRITICAL");
           const x = z.x ?? 0, y = z.y ?? 0, w = z.w ?? 0, h = z.h ?? 0;
-          const fs = h < 12 ? 2.4 : 2.8;
-          const ls = lines(z.nameMn, w - 3, fs);
+          const fs = h < 12 ? 3.1 : 3.5;
+          const ls = lines(z.nameMn, w - 2, fs);
           const interactive = Boolean(onSelect);
           return (
             <g
@@ -166,6 +167,7 @@ export function FloorMap({
           );
         })}
       </svg>
+      </div>
       <figcaption className="happy-map__caption">
         DEMO — зохиомол сургуулийн зураг. Тэмдэглэгээ нь мэдээлсэн үйл явдлын байршил, хүний бодит байрлал биш.
         {pins.length > 0 && <> <span className="happy-map__legend happy-map__legend--red" /> яаралтай <span className="happy-map__legend happy-map__legend--amber" /> бусад идэвхтэй хүсэлт</>}

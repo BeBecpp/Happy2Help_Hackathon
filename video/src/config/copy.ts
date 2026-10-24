@@ -1,0 +1,35 @@
+/** All on-screen copy in one place. Mongolian Cyrillic first; English only for the brand line. */
+export const copy = {
+  problem: ["Дээрэлхэлт.", "Айдас.", "Хэлж чадахгүй үгс."],
+  problemSub: "Заримдаа тусламж хүсэх нь хамгийн хэцүү алхам байдаг.",
+  question: "Харин тэднийг хэн сонсох вэ?",
+  thatIsWhy: "That's why we built",
+  brand: "Happy2Help",
+  notAlone: "Чи ганцаараа биш.",
+  realFootage: "Бодит бүртгэл · зохиомол сургууль (DEMO)",
+  split: {
+    student: "Сурагч · утас",
+    teacher: "Багш · компьютер",
+    step1: "Байршлаа зураг дээрээс сонгоно",
+    step2: "Яаралтай SOS — улаан дохио",
+    step3: "Багшийн самбарт шууд ирнэ",
+    step4: "Хүлээн авах · хариуцагч томилох",
+    step5: "Сурагчтай чат · Хариуцагчдын чат",
+  },
+  status: ["Багш хүлээн авсан", "Хэн хариуцаж байгааг сурагч мэднэ."],
+  modules: {
+    council: ["Happy Council", "Санал · дэмжлэг · хэрэгжилт"],
+    care: ["Happy Care", "Сувилагч, нийгмийн ажилтанд нууцлалтай хүсэлт"],
+    patrol: ["Happy Patrol", "Ээлж · QR бүртгэл · ажиглалт"],
+    map: ["Сургуулийн зураг", "Идэвхтэй хүсэлтүүд багшид л харагдана"],
+  },
+  ai: {
+    title: "Happy AI · Gemma 4",
+    body: "Нээлттэй жинтэй Gemma 4 загвар багшид зориулж хураангуй санал бэлтгэнэ.",
+    honest: "Өнөөдрийн бүртгэлд: загварын хязгаар (402/429). SOS урсгал AI-гүйгээр бүрэн ажилласан.",
+    disclaimer: "AI зөвхөн санал өгнө. Шийдвэрийг багш гаргана.",
+  },
+  outro: ["Every student deserves to be heard.", "Сурагч бүр сонсогдох эрхтэй."],
+  credit: "ZEVQORA · Hacktoberfest Hack Day Ulaanbaatar × erxes Hub · 2026",
+  openSource: "Open source · AGPL-3.0 · erxes plugin",
+};

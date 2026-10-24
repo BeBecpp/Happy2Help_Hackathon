@@ -11,3 +11,8 @@ api/generated
 docs/ai-proof/*.raw.json
 .claude/
 *.tsbuildinfo
+.next-build
+video/node_modules
+video/out/*.mp4
+video/public/footage/*.webm
+video/public/footage/mp4/*.mp4

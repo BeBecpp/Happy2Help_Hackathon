@@ -81,3 +81,17 @@ Unblock: add OpenRouter credits (paid slug) or wait for upstream free capacity, 
 - QR scan with a physical phone camera (desktop/manual paths only).
 - erxes gateway composition / hosted tenant install.
 - Browser checks at 768 px; 390 px and 1440 px were captured.
+
+## Final sprint (Claude, 15:00–)
+
+| When | Command / action | Result |
+|---|---|---|
+| 15:00 | api `tsc`, web `tsc` | PASS |
+| 15:10 | `NEXT_DIST_DIR=.next-build next build` (with .env.runtime) | FAIL — `/404` prerender error; root cause `NODE_ENV=development` from the env file + Google Fonts fetch timeout |
+| 15:16 | same, `NODE_ENV=production`, no env file, local font stack | **PASS** — 25 routes compiled |
+| 15:20 | UI polish pass (CSS overrides + floor-map labels/pan), web `tsc` | PASS |
+| 15:22 | `node tools/smoke-bff.mjs` | **PASS 15/15** (incident #RKPP) |
+| 15:23 | `node tools/film/viewport-shots.mjs` | 19 screens at 390/768/1440 → `artifacts/screenshots/review-after/` |
+| 15:27 | `node tools/film/record-footage.mjs` + NVENC transcode | 6 real clips (27.6 s, 27.4 s, 7.0 s, 7.4 s, 8.4 s, 4.0 s) → `video/public/footage/mp4/` |
+| 15:30 | Remotion still (frame 100), Chrome + `--gl angle` | PASS → `video/out/still-0100.png` |
+| 15:33 | Remotion preview render (0.5 scale) | running → `video/out/preview-540p.mp4` |
