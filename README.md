@@ -1,170 +1,232 @@
-# Happy2Help — Every Student Deserves to Be Heard
+<p align="center">
+  <img src="web/public/brand/wordmark.png" alt="Happy2Help" width="420">
+</p>
 
-> Сурагч бүр сонсогдох эрхтэй. Happy2Help is an open-source **erxes EdTech plugin** for school safety and
-> student support: QR-located SOS reports, a real student ↔ teacher chat, Student Council proposals and
-> votes, Student Patrol shifts, confidential nurse / social-worker requests, and **Happy AI** — teacher-side
-> incident summaries produced by **Gemma 4**.
+<h3 align="center">Every student deserves to be heard. · Сурагч бүр сонсогдох эрхтэй.</h3>
 
-Built at **Hacktoberfest Hack Day Ulaanbaatar × erxes Hub**, 24 October 2026, by team **ZEVQORA**.
-Hackathon prototype with **fictional** schools, students and staff. Not an emergency service.
+<p align="center">
+  Open-source school-safety plugin for <a href="https://erxes.io">erxes</a>: QR-located SOS, a real student ↔ teacher chat,
+  Student Council, Student Patrol, confidential Care requests — and <b>Happy AI</b>, teacher-side incident summaries by the
+  open-weight <b>Gemma 4</b> model, always reviewed by a human.
+</p>
 
-| | |
-|---|---|
-| Plugin | `api/` — official `@erxes/create-plugin` scaffold, `@erxes/api-shared` `startPlugin`, tenant-scoped Mongoose models, federated GraphQL subgraph |
-| App | `web/` — Next.js 15, mobile-first Mongolian UI for students and staff, BFF with HttpOnly sessions and an allow-listed GraphQL proxy |
-| AI | `api/src/modules/ai/` — Gemma 4 (open-weight, Google DeepMind) via a hosted inference endpoint; versioned prompt, Zod-validated JSON, hard timeout, async after SOS commit |
-| License | AGPL-3.0-only (the erxes SDK is AGPL-3.0) |
+<p align="center">
+  <img alt="License AGPL-3.0" src="https://img.shields.io/badge/license-AGPL--3.0--only-0F2D5B">
+  <img alt="erxes plugin" src="https://img.shields.io/badge/erxes-API%20plugin%20%C2%B7%20Federation%202-5B9CFF">
+  <img alt="Gemma 4" src="https://img.shields.io/badge/AI-Gemma%204%20(open%20weights)-FFD34D">
+  <img alt="E2E tests" src="https://img.shields.io/badge/E2E-48%2F48-A7E3C1">
+  <img alt="Unit tests" src="https://img.shields.io/badge/unit-12%2F12-A7E3C1">
+  <img alt="UI language" src="https://img.shields.io/badge/UI-Mongolian%20%C2%B7%20mobile%20first-F3F6FB">
+</p>
 
-## What works today (verified, not claimed)
+<p align="center">
+  <img src="presentation/previews/slide-04.png" alt="Student SOS on a phone next to the duty teacher's critical-first inbox" width="900">
+</p>
 
-Each row has an automated end-to-end test that runs against the **real plugin process** and a real `mongod`.
-See [`docs/FEATURE_PROGRESS.md`](docs/FEATURE_PROGRESS.md) for the live status of every module.
+Built in one day at **Hacktoberfest Hack Day Ulaanbaatar × erxes Hub** (24 October 2026) by team **ZEVQORA**.
+Everything in the demo — schools, students, staff, incidents — is **fictional**. Happy2Help is a hackathon
+prototype, **not an emergency service**.
 
-| Flow | Routes | GraphQL (plugin) |
+---
+
+## Contents
+
+1. [Why](#why) · 2. [What it does](#what-it-does) · 3. [Quick start](#quick-start-no-docker) · 4. [Architecture](#architecture)
+· 5. [Happy AI · Gemma 4](#happy-ai--gemma-4) · 6. [Security model](#security-and-privacy-model) · 7. [Tests and evidence](#tests-and-evidence)
+· 8. [erxes integration status](#erxes-integration--what-is-and-is-not-proven) · 9. [Films, deck, docs](#films-pitch-deck-and-documentation)
+· 10. [Limitations and roadmap](#known-limitations-and-roadmap) · 11. [Contributing](#contributing) · 12. [License](#license)
+
+## Why
+
+A student who sees bullying, vaping or a fight brewing has to *leave* to find a teacher. By the time an adult
+arrives, time has passed, the place has changed, and often nobody knows exactly what happened. The founder noticed
+this gap while working with the student council and student patrol. Happy2Help closes it: **report from where you
+are → the right adult responds → the student sees that someone is handling it.**
+
+Why open source? School safety software must be **inspectable**. Schools, parents and ministries can read every
+rule that decides who sees a child's report, reproduce every test, audit the AI prompt and schema, and adapt the
+workflow and language to their own context. Nothing here is a black box.
+
+## What it does
+
+Each row below is covered by an automated end-to-end test that runs against the **real plugin process** and a
+real `mongod` (see [Tests and evidence](#tests-and-evidence)).
+
+| Module | What a user can do | Where |
 |---|---|---|
-| **SOS** — QR or manual zone → category → optional text → persisted incident → teacher acknowledges → student sees status (polling) | `/student/sos`, `/student/incidents/[id]`, `/teacher/incidents`, `/teacher/incidents/[id]` | `happy2helpZones`, `happy2helpZoneResolve`, `happy2helpCreateIncident`, `happy2helpMyIncidents`, `happy2helpTeacherIncidents`, `happy2helpAcknowledgeIncident` |
-| **Happy Connect** — trusted-adult directory, direct rooms, SOS follow-up thread, unread counts, 3 s polling | `/student/chat`, `/student/chat/new`, `/student/chat/[id]`, `/teacher/chat/[id]` | `happy2helpStaffDirectory`, `happy2helpDirectOpen`, `happy2helpConversations`, `happy2helpMessages(after)`, `happy2helpMessageSend`, `happy2helpIncidentConversation` |
-| **Happy Council** — proposal → moderator approve/reject/progress (audit stamp) → one vote per student (DB-enforced) | `/student/council`, `/teacher/council` | `happy2helpProposals`, `happy2helpProposalCreate`, `happy2helpProposalSetStatus`, `happy2helpProposalVote` |
-| **Happy Patrol** — supervisor assigns shift → member checks in by zone QR (server-verified) or manual → observations → supervisor acknowledges | `/student/patrol`, `/teacher/patrol` | `happy2helpShifts`, `happy2helpShiftCreate`, `happy2helpShiftCheckIn(zoneSig)`, `happy2helpShiftCheckOut`, `happy2helpObservation*` |
-| **Happy Care** — confidential nurse / social-worker request opens a CARE room with the designated adults only | `/student/care`, `/teacher/care` | `happy2helpCareRequests`, `happy2helpCareRequestCreate`, `happy2helpCareRequestAcknowledge` |
-| **QR locations** — HMAC-signed zone codes, printable sheet, camera scanner with manual fallback | `/teacher/zones`, `/student/sos?zone=…&sig=…` | `happy2helpZoneQrCodes`, `happy2helpZoneResolve` |
-| **School floor map** — DEMO SVG plan, floors 1–3 + outdoors, 24 rooms/corridors (101–302, 8Б анги, лаборатори…), tap a room → «Энэ байршлаас SOS илгээх» | `/student/map`, `/student/sos?pick=…` | `happy2helpZones` (floor + geometry + kind) |
-| **Red SOS + response workspace** — persisted `CRITICAL` severity (not inferred from «bullying»), critical-first inbox, map markers scoped to the adult's cases, acknowledge → assign → RESPONDING → RESOLVED with actor/time log | `/teacher/incidents`, `/teacher/incidents/[id]`, `/teacher/map` | `happy2helpTeacherIncidents`, `happy2helpIncidentAssign`, `happy2helpIncidentSetStatus`, `happy2helpStaffForAssignment` |
-| **Staff-only response room** — separate `STAFF_INTERNAL` conversation type; students, patrol, council and unassigned adults get `INCIDENT_NOT_FOUND` even with the room id | `/teacher/incidents/[id]` (tab «Хариуцагчдын чат») | `happy2helpStaffRoom`, `happy2helpMessages`, `happy2helpMessageSend(clientMessageId)` |
-| **Happy AI** — teacher-only Gemma 4 summary card (PENDING / READY / FAILED / SKIPPED, retry on FAILED) and a student Happy AI chat (real inference or an honest error) | `/teacher/incidents/[id]`, `/student/ai` | `Happy2helpIncident.ai`, `happy2helpAiRetry`, `happy2helpAssistantAsk` |
+| **SOS** | Pick a location on the floor map or scan a signed zone QR → category → optional text → **persisted** incident. "I am in danger now" produces a red **CRITICAL** case; ordinary reports do not. | `/student/sos`, `/student/incidents/[id]` |
+| **Response workspace** | Critical-first inbox, map markers scoped to the adult's cases, acknowledge → assign responders → RESPONDING → RESOLVED, with actor/time log. | `/teacher/incidents`, `/teacher/map` |
+| **Happy Connect (chat)** | Trusted-adult directory, direct rooms, per-incident follow-up thread, unread counts. | `/student/chat`, `/teacher/chat` |
+| **Staff-only room** | Separate `STAFF_INTERNAL` conversation per incident; students and unassigned adults are denied even with the room id. | `/teacher/incidents/[id]` |
+| **Happy Council** | Proposal → moderator approve/reject/progress (audited) → **one vote per student** (unique index). | `/student/council`, `/teacher/council` |
+| **Happy Patrol** | Supervisor creates shifts → member checks in by zone QR (server-verified) or manually → observations. | `/student/patrol`, `/teacher/patrol` |
+| **Happy Care** | Confidential request to the nurse / social worker / psychologist opens a CARE room with only those adults. | `/student/care`, `/teacher/care` |
+| **Zone QR codes** | Printable HMAC-signed codes per zone; the code carries **no** student or school data and is **not** GPS. | `/teacher/zones`, `/student/sos?zone=…&sig=…` |
+| **School floor map** | Demo SVG plan, floors 1–3 + outdoors, 24 zones; tap a room → "SOS from here". | `/student/map` |
+| **Happy AI** | Teacher-only Gemma 4 summary card (PENDING / READY / FAILED / SKIPPED, retry) and a student assistant that is honest about being an AI. | `/teacher/incidents/[id]`, `/student/ai` |
 
-**Case scope.** Duty teachers and the safeguarding lead see every case of their school; every other adult
-(subject teacher, nurse, social worker, patrol supervisor) sees only cases they were routed to or assigned on.
-Out-of-scope ids return the same `INCIDENT_NOT_FOUND` as missing ones.
+### Fictional demo personas (dev sign-in page)
 
-### Fictional demo accounts (dev-direct sign-in page)
-
-| Persona | Role | What to show |
+| Persona | Role | Shows |
 |---|---|---|
-| Тэмүүлэн · 8Б | student (also patrol member) | map → SOS, follow-up chat, Happy AI, Council vote, Patrol check-in |
-| Уянга багш | duty teacher (sees all cases) | red inbox, map, acknowledge, assign, chats |
-| Ариунаа | social worker | assigned responder, staff room, Care requests |
-| Мөнхзул эмч | nurse | Care requests; sees only cases routed/assigned to her |
-| Бат багш | safeguarding lead + council moderator | case oversight, approve proposals |
+| Тэмүүлэн · 8Б | student, patrol member | map → SOS, follow-up chat, Council vote, Patrol check-in |
+| Уянга багш | duty teacher (sees every case of her school) | red inbox, acknowledge, assign, both chats |
+| Ариунаа | social worker | assigned responder, staff room, Care |
+| Мөнхзул эмч | nurse | Care; sees only cases routed to her |
+| Бат багш | safeguarding lead, council moderator | oversight, approve proposals |
 | Ганбаатар багш | patrol supervisor | shifts; **cannot** open SOS cases (negative demo) |
-| Ихбаяр / Сараа багш | other school | cross-school isolation |
+| Ихбаяр / Сараа багш | a second school | cross-school isolation |
 
-Authorization is enforced in every resolver from the identity the erxes gateway forwards: tenant (subdomain) +
-school membership + role (`STUDENT` / `TEACHER`) + extra roles (`COUNCIL_MODERATOR`, `PATROL_SUPERVISOR`,
-`NURSE`, …). Tests cover cross-student, cross-school and cross-role denials.
+## Quick start (no Docker)
 
-## Run it locally — no Docker needed
+Requirements: Node 20+, pnpm 9+. The first run downloads a MongoDB binary for `mongodb-memory-server`.
 
 ```bash
 pnpm install
-node tools/dev-stack.mjs        # mongod (mongodb-memory-server, persisted in .data/), Redis stub, plugin, seed, web
-# web:    http://localhost:3100   one-tap sign-in with fictional personas (dev-direct mode, clearly labelled)
-# plugin: http://localhost:3399/graphql
+node tools/dev-stack.mjs
 ```
 
-Optional Happy AI: copy `.env.example` to `.env` and set `OPENROUTER_API_KEY` (server-side only) and
-`OPENROUTER_MODEL=google/gemma-4-26b-a4b-it`. Without a key the SOS flow is unchanged and analyses are stored
-as `SKIPPED`. Never commit `.env`. After changing the floor plan or personas run `pnpm seed` (idempotent upserts;
-zones from older layouts are deactivated, never deleted).
+That starts `mongod` (persisted in `.data/`), a dev-only Redis stub, the erxes plugin on `:3399`, seeds the
+fictional school, and serves the web app on **http://localhost:3100** with one-tap persona sign-in. The yellow
+banner in the app states that this is **dev-direct** mode (the BFF talks to the plugin's own subgraph and sets the
+identity headers an erxes gateway would set). Dev-direct must never be exposed publicly.
 
-### Tests
+Optional Happy AI: `cp .env.example .env` and set `OPENROUTER_API_KEY` (server-side only; never committed).
+Without a key the SOS flow is unchanged and analyses are stored as `SKIPPED`.
 
-```bash
-pnpm --filter happy2help_api check     # tsc
-pnpm --filter happy2help_api test      # unit: AI output contract, prompt sanitisation, QR signatures
-pnpm --filter happy2help_api test:e2e  # real plugin + real mongod: sos-flow, chat, council/patrol/care, ai-pipeline
-pnpm --filter happy2help_web exec tsc --noEmit
-pnpm ai:verify                         # one live Gemma 4 call on a fictional case → docs/ai-proof/latest.json
-pnpm ai:eval                           # 10 fictional Mongolian cases → docs/ai-proof/eval-latest.json
-pnpm --filter happy2help_api ai:diag   # per-slug OpenRouter status (402 credits / 429 upstream), key never printed
-node tools/smoke-bff.mjs               # live judge journey through the RUNNING web BFF → plugin → Mongo (separate sessions)
-PLAYWRIGHT_CORE_DIR=<dir> node tools/screenshots.mjs   # real clicks in Edge → artifacts/screenshots/
+## Architecture
+
+```
+Student / teacher browser  (Next.js 15 app · Mongolian, mobile-first)
+        │  HTTPS · HttpOnly HMAC session cookie
+        ▼
+web/  BFF  /api/graphql  — allow-listed operations only (lib/server/operations.ts)
+        │  gateway identity headers (user / cpuser / clientportal)
+        ▼
+api/  Happy2Help erxes API plugin  — @erxes/api-shared startPlugin · GraphQL Federation 2 subgraph
+        │  own ACL: tenant → school → role → case scope · idempotent mutations
+        ├──► MongoDB  happy2help_* collections (incidents, conversations, proposals, shifts, zones, aiAnalyses)
+        ├──► Redis service discovery (official erxes plugin registration; dev stub locally)
+        └──► after the SOS is committed: async AI job → Gemma 4 (hosted inference) → Zod validation → teacher-only card
 ```
 
-Latest results: [`docs/TEST_RESULTS.md`](docs/TEST_RESULTS.md).
+Details: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · erxes specifics: [`docs/erxes-plugin-scaffold-notes.md`](docs/erxes-plugin-scaffold-notes.md).
 
-## erxes integration — exactly what is and is not proven
+## Happy AI · Gemma 4
 
-- The plugin is a **standalone erxes API plugin** generated with `npx @erxes/create-plugin` (backend `platform`)
-  and started with `startPlugin` from `@erxes/api-shared@3.3.4`. It serves a Federation 2 subgraph on `/graphql`,
-  mounts `/health`, decodes the gateway's `user` / `cpuser` / `clientportal` headers into the resolver context, and
-  registers itself through erxes Redis service discovery (`erxesservice:config:happy2help`,
-  `erxes-service-happy2help`, `erxes-service-owner:happy2help`). All of this runs and is exercised by the tests.
-- **Verified offline:** `node tools/redis-keys.mjs` shows the three service-discovery keys written by the running
-  plugin, and `node tools/federation-check.mjs` (also E2E test F1) composes the live `_service { sdl }` into a
-  Federation 2 supergraph with all 40 `happy2help*` root fields.
-- **Not implemented:** an erxes Core UI remote (Module Federation). `erxes.json` declares the `ui` slot, but the
-  staff and student UI ship as the separate Next.js app in `web/`.
-- **Not verified on this laptop:** a real erxes gateway serving these operations (no Docker here). The repo's
-  `erxes.json`, `Dockerfile` and [`docs/erxes-integration.md`](docs/erxes-integration.md) describe how an erxes
-  host enables it (`ENABLED_PLUGINS_ONLY_API=happy2help`, shared Mongo + Redis).
-- **Hosted tenant** `zevqora.next.erxes.io` is the multi-tenant erxes SaaS on the shared gateway
-  `officenext.erxes.io`. Its settings expose Client Portal, App Tokens and OAuth Clients but **no self-serve
-  plugin install**; adding a third-party backend plugin there needs erxes operator provisioning. In the demo the web
-  app therefore runs in **dev-direct** mode (banner shown): the BFF talks to the plugin's own subgraph and sets the
-  identity headers the gateway would set, for fictional personas only. Gateway mode (real erxes logins via
-  `login` / `clientPortalUserLoginWithCredentials`) is implemented in `web/lib/server/` but untested without a host.
+Happy AI is deliberately small and humble. It **never** acknowledges, assigns, closes, blames or dispatches.
 
-## Happy AI · Gemma 4 — honest status
+| | |
+|---|---|
+| Model | **Gemma 4** (open weights, Google DeepMind) — default `google/gemma-4-26b-a4b-it`; Gemma-4-only fallback chain (`:free` variants, `gemma-4-31b-it`) |
+| Provider | OpenRouter (OpenAI-compatible endpoint), key server-side only. Optional alternatives in code: Gemini API and Anthropic Claude (`HAPPY_AI_PROVIDER`); **Gemma 4 via OpenRouter is the default and the path we verified**. |
+| Order of operations | SOS saved **first** → async job with a 25 s timeout and per-process call cap → bounded retries on 429 / 503 / network |
+| Prompt | `api/src/modules/ai/prompt.ts`, versioned `happy-ai-gemma4-v1`; the student's text is wrapped in delimiters and declared *data, not instructions* |
+| Output contract | strict Zod schema — `categorySuggestion`, `urgency`, `confidence`, `summaryMn`, `riskIndicatorsMn`, `teacherActionsMn`, `uncertaintyNoteMn`; anything else → `FAILED`, never shown as AI |
+| Who sees it | teachers in case scope, labelled «AI-ийн санал · Эцсийн шийдвэрийг багш гаргана»; students never see teacher analyses |
+| Evaluation | `api/eval/incidents.mn.json` — 10 fictional Mongolian cases incl. a prompt-injection case → `pnpm ai:eval` |
 
-- Provider: **OpenRouter** (`POST {OPENROUTER_BASE_URL}/chat/completions`, server-side bearer key). Model:
-  **Gemma 4** — `google/gemma-4-26b-a4b-it` (configurable via `OPENROUTER_MODEL`), Gemma 4-only fallback chain
-  (`:free` variants, `gemma-4-31b-it`). One short backoff retry on 429/503, then the next slug; 402 moves on
-  immediately. The ids are listed by the account's `GET /models` (checked 2026-10-24). A legacy Gemini-API
-  adapter remains in code but is not used unless explicitly selected.
-- Student Happy AI chat (`/student/ai`): states that it is an AI and not a teacher, refuses diagnoses/blame,
-  sends anyone in danger to the red SOS / a nearby adult, 6 requests per minute per user, client-held history.
-- Pipeline: SOS is committed first; the analysis runs afterwards with a 25 s timeout and a per-process call cap;
-  output must match a strict Zod schema (`categorySuggestion`, `urgency`, `confidence`, `summaryMn`,
-  `riskIndicatorsMn`, `teacherActionsMn`, `uncertaintyNoteMn`); the student's text is wrapped in delimiters and
-  the model is told to ignore instructions inside it. Teachers see it labelled «AI-ийн санал · Эцсийн шийдвэрийг
-  багш гаргана». The AI never acknowledges, closes, assigns blame or escalates.
-- Tests: `ai-pipeline.test.ts` (fixtures, labelled as such) covers READY / FAILED / SKIPPED, invalid JSON, schema
-  violation, timeout and quota. Evaluation set: `api/eval/incidents.mn.json` (10 fictional Mongolian cases, incl.
-  a prompt-injection case).
-- **Live call verified 15:01 local:** `google/gemma-4-31b-it:free` via OpenRouter returned a Zod-valid Mongolian
-  analysis of a fictional bullying report in 12.2 s — see [`docs/ai-proof/latest.json`](docs/ai-proof/latest.json).
-  One teacher step mixed a Greek word into the Mongolian text: outputs are drafts for a human, never decisions. At 14:30 local: the key is valid (free tier, 0 used), the paid Gemma 4
-  slugs return `402 never purchased credits` and the `:free` slugs return `429 temporarily rate-limited upstream`.
-  The app records these as `FAILED · QUOTA` and keeps working; adding OpenRouter credits unblocks it with no code change.
+**Live proof (2026-10-24, 15:42 Ulaanbaatar):** `pnpm ai:verify` → `google/gemma-4-26b-a4b-it:free`, **8.9 s**, schema-valid
+Mongolian summary of a fictional bullying case → [`docs/ai-proof/latest.json`](docs/ai-proof/latest.json) (no secrets).
+An earlier 15:01 run (`gemma-4-31b-it:free`, 12.2 s) contained a mixed-script artefact in one action item — a reminder
+that *schema-valid ≠ reliable*; a human decides. Free-tier capacity fluctuates (429) and paid slugs need credits (402);
+the UI shows `FAILED · QUOTA` honestly and the SOS flow keeps working without AI. Model card: [`docs/AI_MODEL.md`](docs/AI_MODEL.md).
 
-## Launch + demo film and screenshots
+**License clarity:** the Happy2Help code is **AGPL-3.0-only**. Gemma 4 is an **open-weight model under Google's
+Gemma Terms of Use**, accessed through hosted inference — a different licence, not AGPL. We did not train or fine-tune
+any model.
 
-- **Technical keynote (5:04)** — `video/out/Happy2Help-Technical-Keynote.mp4` (also `artifacts/film/`): slower, presenter-paced motion
-  presentation in 11 chapters — question → founder motivation (school council/patrol observation) → who has which problem →
-  signed zone QR (real printed code, decoded with OpenCV, server-verified vs forged) → real SOS→teacher→chat footage at 1× →
-  architecture from the code → security (tenant/school/role/case, separate chat rooms, idempotency) → Gemma 4 with the 15:42
-  live proof → AGPL-3.0 code vs Gemma open weights → built/next → closing with a scannable repository QR. Timed Mongolian
-  presenter script + 3-minute cut: `docs/KEYNOTE_SCRIPT.md`. Music only under opening/closing; on-screen subtitles throughout.
-- **Judges pitch deck (3 min + live demo)** — `presentation/Happy2Help-Final-Judges-Pitch.pptx` (editable, speaker notes in Mongolian), PDF, previews and `presentation/PITCH_SCRIPT.md` with the browser-switch cue. Built from the real brand assets and real screenshots by `presentation/build_pitch.py`.
-- **Teaser (1:46)** — the earlier launch film below.
+## Security and privacy model
 
-- `video/` — Remotion 4 project (one continuous film ≈106 s, 1920×1080, 30 fps): emotional opening → "That's why we built
-  Happy2Help" → brand reveal → **real recordings** of the app (student phone right, staff desktop left, red signal
-  travelling between them) → status → Council / Patrol / Care → Gemma 4 (truthful status) → finale. Soundtrack and cues
-  are original and generated by `tools/film/make-music.mjs`; footage is recorded by `tools/film/record-footage.mjs`
-  (Playwright-core + Edge, fictional data). Output: `video/out/Happy2Help-Launch-Demo.mp4`.
-- Screenshots: `artifacts/screenshots/` (judge journey) and `artifacts/screenshots/review-after/` (390 / 768 / 1440 review).
-- Pitch and Q&A: `docs/PITCH_SCRIPT.md`, `docs/JUDGES_QA.md`. Release status: `docs/FINAL_RELEASE_CHECKLIST.md`.
+- **Authorization in every resolver**, derived from the identity the erxes gateway forwards: tenant (subdomain) →
+  school membership → role (`STUDENT` / `TEACHER`) → extra roles (`COUNCIL_MODERATOR`, `PATROL_SUPERVISOR`, `NURSE`,
+  `SOCIAL_WORKER`, `SAFEGUARDING_LEAD`, …) → **case scope**. Out-of-scope ids return the same `INCIDENT_NOT_FOUND`
+  as missing ones.
+- **Two rooms, one lock:** the student's `INCIDENT` chat and the staff `STAFF_INTERNAL` room are separate
+  conversations; tests prove students, patrol, council and unassigned adults are denied by id.
+- **Idempotency:** `clientRequestId` on SOS, `clientMessageId` on messages, a unique index on Council votes.
+- **Signed QR:** the code carries `zone` + `sig` (HMAC-SHA256, server secret). The server derives the school from the
+  authenticated student and rejects foreign or forged codes. A QR proves *which checkpoint was scanned*, not where a
+  person stands.
+- **Secrets:** server-side only; `.env` is git-ignored; CI-style push protection is honoured (a pasted key was caught
+  and removed before it ever reached GitHub — see `git log`).
+- **Data:** fictional only in this repository. A real deployment needs school consent, a data-processing agreement with
+  the inference provider and a review of the Gemma Terms. Report issues via [`SECURITY.md`](SECURITY.md).
 
-## Award tracks
+## Tests and evidence
 
-- **Best EdTech Project (erxes Choice):** a real erxes plugin on the official SDK with tenant-scoped data, six
-  working school modules, Mongolian mobile UI, and server-side authorization.
-- **Best Open-Source AI Project:** open-weight Gemma 4, open prompt + schema + eval set, documented limits,
-  reproducible `pnpm ai:verify` / `pnpm ai:eval`, AGPL code.
-- **Best Use of Gemma 4:** teacher-assist summaries in Mongolian with strict validation and human-in-the-loop
-  design; live verification script writes redacted proof.
+| Suite | Command | Result (2026-10-24) |
+|---|---|---|
+| Typecheck plugin + web | `pnpm --filter happy2help_api check` · `pnpm --filter happy2help_web exec tsc --noEmit` | PASS |
+| Unit (AI contract, prompt sanitisation, QR signatures) | `pnpm --filter happy2help_api test` | **12/12** |
+| End-to-end through the real `startPlugin` process + real `mongod` | `pnpm --filter happy2help_api test:e2e` | **48/48** |
+| Live judge journey through the running BFF → plugin → Mongo | `node tools/smoke-bff.mjs` | **15/15** |
+| Production build of the web app | `NODE_ENV=production NEXT_DIST_DIR=.next-build pnpm --filter happy2help_web build` | PASS, 25 routes |
+| Live Gemma 4 inference | `pnpm ai:verify` | PASS, proof in `docs/ai-proof/latest.json` |
+| Federation composition of the live subgraph SDL | `node tools/federation-check.mjs` | 40/40 root fields |
+
+All results are **local**: they are not a production SLA and say nothing about real-world outcomes.
+Full log: [`docs/TEST_RESULTS.md`](docs/TEST_RESULTS.md) · release status: [`docs/FINAL_RELEASE_CHECKLIST.md`](docs/FINAL_RELEASE_CHECKLIST.md).
+
+## erxes integration — what is and is not proven
+
+- **Proven locally:** a standalone erxes API plugin generated with `npx @erxes/create-plugin`, started with
+  `startPlugin` from `@erxes/api-shared@3.3.4`; Federation 2 subgraph on `/graphql`, `/health`, gateway identity
+  headers decoded into the resolver context, Redis service-discovery keys written by the running plugin
+  (`node tools/redis-keys.mjs`), supergraph composition of all 40 root fields.
+- **Not implemented:** an erxes Core UI remote (Module Federation). `erxes.json` declares the `ui` slot; the student
+  and staff UI ship as the separate Next.js app in `web/`.
+- **Not verified:** a real erxes gateway serving these operations (no Docker on the build machine), and the hosted
+  tenant `zevqora.next.erxes.io`, where third-party plugins need operator provisioning. Gateway-mode login is implemented
+  in `web/lib/server/` but untested without a host. Enablement notes for an erxes operator:
+  [`docs/erxes-plugin-scaffold-notes.md`](docs/erxes-plugin-scaffold-notes.md).
+
+## Films, pitch deck and documentation
+
+| Asset | Path |
+|---|---|
+| Technical keynote, 5:04, 11 chapters, real footage, Mongolian subtitles | `artifacts/film/Happy2Help-Technical-Keynote.mp4` · script `docs/KEYNOTE_SCRIPT.md` |
+| Launch teaser, 1:46 | `artifacts/film/Happy2Help-Launch-Demo.mp4` |
+| Judges pitch deck, 8 slides + live-demo cue | `presentation/Happy2Help-Final-Judges-Pitch.pptx` (+ PDF, previews) · `presentation/PITCH_SCRIPT.md` |
+| Screenshots at 390 / 768 / 1440 | `artifacts/screenshots/`, `artifacts/screenshots/review-after/` |
+| Film tooling (Remotion 4, recordings, procedural soundtrack) | `video/`, `tools/film/` |
+| Judges' Q&A, demo guide, provenance | `docs/JUDGES_QA.md`, `docs/DEMO.md`, `docs/HACKDAY_CHANGES.md` |
+
+Everything on screen in the films and the deck is a real recording or screenshot of this code with fictional data;
+the Happy AI card in the deck shows the real verified output and is labelled as such.
+
+## Known limitations and roadmap
+
+**Limitations today:** no public deployment (dev-direct is local-only by design); erxes gateway / Core UI integration
+pending operator access; Happy AI depends on upstream capacity; QR scanning with a physical phone camera has not been
+tested (server-side verification has).
+
+**Next:** a secure pilot with school approval and privacy controls → real erxes gateway + Core UI remote → stable
+hosting with gateway-mode auth → physical QR test → broader evaluation set for Happy AI and a reviewer workflow for its
+suggestions.
 
 ## Repository layout
 
 ```
-api/            erxes plugin (startPlugin, models, GraphQL, AI, seed, tests)
-web/            Next.js app (student + staff), BFF, allow-listed GraphQL proxy
-tools/          dev-stack.mjs (no-Docker local stack), dev-redis.mjs (dev-only stub)
-docs/           Astra specs, directive, FEATURE_PROGRESS.md, erxes-integration.md, ai-proof/
-astra-frontend/ untouched frontend handoff from Astra (reference)
+api/            erxes plugin: startPlugin, Mongoose models, GraphQL schema/resolvers, ACL, Happy AI, seed, tests (unit + e2e)
+web/            Next.js 15 app (student + staff), BFF, allow-listed GraphQL proxy, session
+tools/          dev-stack.mjs (no-Docker stack), dev-redis.mjs, smoke-bff.mjs, federation-check.mjs, film/ recorders
+presentation/   judges deck builder (python-pptx) + outputs
+video/          Remotion project: teaser + technical keynote
+docs/           architecture, AI model card, erxes integration, tests, scripts, ai-proof/
+artifacts/      screenshots and rendered films
 ```
 
-Original brand assets (white kitten with blue scarf) are the team's own. Code in this repository was written
-on 24 October 2026; the earlier preparation repository `BeBecpp/Happy2Help` was consulted for architecture only.
+## Contributing
+
+Issues and pull requests are welcome — see [`CONTRIBUTING.md`](CONTRIBUTING.md) (dev loop, test commands, style),
+[`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) and [`SECURITY.md`](SECURITY.md). Good first contributions: more Mongolian
+eval cases for Happy AI, additional negative authorization tests, translations of the UI strings, and an erxes Core UI remote.
+
+## License
+
+**AGPL-3.0-only** — see [`LICENSE`](LICENSE). The erxes SDK is AGPL-3.0; Next.js, Mongoose, Zod and the other
+dependencies keep their own licences. Gemma 4 weights are Google DeepMind's under the Gemma Terms of Use and are not
+redistributed here. Brand assets (the white kitten with the blue scarf, wordmark) belong to team ZEVQORA.
+
+<p align="center"><img src="web/public/brand/mascot.png" alt="Happy2Help mascot" width="140"><br><sub>Built with care by ZEVQORA · Ulaanbaatar · 2026</sub></p>
