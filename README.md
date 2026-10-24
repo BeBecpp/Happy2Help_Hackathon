@@ -130,6 +130,14 @@ Latest results: [`docs/TEST_RESULTS.md`](docs/TEST_RESULTS.md).
 
 ## Launch + demo film and screenshots
 
+- **Technical keynote (5:04)** — `video/out/Happy2Help-Technical-Keynote.mp4` (also `artifacts/film/`): slower, presenter-paced motion
+  presentation in 11 chapters — question → founder motivation (school council/patrol observation) → who has which problem →
+  signed zone QR (real printed code, decoded with OpenCV, server-verified vs forged) → real SOS→teacher→chat footage at 1× →
+  architecture from the code → security (tenant/school/role/case, separate chat rooms, idempotency) → Gemma 4 with the 15:42
+  live proof → AGPL-3.0 code vs Gemma open weights → built/next → closing with a scannable repository QR. Timed Mongolian
+  presenter script + 3-minute cut: `docs/KEYNOTE_SCRIPT.md`. Music only under opening/closing; on-screen subtitles throughout.
+- **Teaser (1:46)** — the earlier launch film below.
+
 - `video/` — Remotion 4 project (one continuous film ≈106 s, 1920×1080, 30 fps): emotional opening → "That's why we built
   Happy2Help" → brand reveal → **real recordings** of the app (student phone right, staff desktop left, red signal
   travelling between them) → status → Council / Patrol / Care → Gemma 4 (truthful status) → finale. Soundtrack and cues
