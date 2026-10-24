@@ -3,8 +3,10 @@
 Read with `docs/FEATURE_PROGRESS.md` (status) and `docs/TEST_RESULTS.md` (evidence). Deadline 17:30 local.
 
 ## Git / workspace state
-- Path: `C:\Users\bayar\Documents\Happy2Help`, branch `main`, **no commits yet, no remote configured**.
-- Everything is untracked. `.gitignore` excludes `.env`, `.env.runtime`, `.data/`, `node_modules`, `.next`, `dist`.
+- Path: `C:\Users\bayar\Documents\Happy2Help`, branch `main`, first local commit `2ac9a70` (plus a docs follow-up),
+  **no remote configured, nothing pushed**.
+- `.gitignore` excludes `.env`, `.env.runtime`, `.data/`, `node_modules`, `.next`, `dist`, `.claude/`. A secret-pattern
+  scan (OpenRouter/Google/GitHub keys, private keys, credentialed Mongo URLs) over tracked files found nothing.
 - Nothing has been pushed. Pushing to `https://github.com/BeBecpp/Happy2Help_Hackathon` needs the owner's explicit OK.
 - The owner's dev stack was already running and was **not** restarted: web `:3100` (next dev), plugin `:3399`
   (tsx watch, picks up edits), mongod `:27117` (persistent `.data/`), Redis stub `:6399`.

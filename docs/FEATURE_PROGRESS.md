@@ -1,6 +1,6 @@
 # Happy2Help — feature progress tracker
 
-Updated 2026-10-24 ~14:30 local (UTC+8). Working tree has **no commits yet** (branch `main`, no remote).
+Updated 2026-10-24 ~14:40 local (UTC+8). Last tested revision `main` @ `2ac9a70` (local, no remote yet).
 Status values: NOT_STARTED · PARTIAL · E2E_VERIFIED · BLOCKED. "E2E_VERIFIED" = an automated test ran against
 the **real plugin process** (`startPlugin`, real `mongod`) and passed, **and** the flow was driven through the
 running web app (BFF smoke script and/or real browser clicks). Nothing here is claimed from reading code.
