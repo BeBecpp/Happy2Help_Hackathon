@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { happyApi } from "./api";
+import { newClientId } from "./id";
 import { Icon } from "./icons";
 import type { Conversation, Message } from "./types";
 import { Feedback, Skeleton, formatDateTime, relativeTime, usePolling, useResource } from "./ui";
@@ -65,7 +66,7 @@ export function ChatThread({ conversationId, compact = false, emptyHint }: { con
     setSending(true);
     setSendError("");
     // Same id on retry of the same draft, so a lost response never stores the message twice.
-    pendingId.current ??= crypto.randomUUID();
+    pendingId.current ??= newClientId();
     try {
       const saved = await happyApi.sendMessage(conversationId, body, pendingId.current);
       setMessages((prev) => (prev?.some((m) => m._id === saved._id) ? prev : [...(prev ?? []), saved]));

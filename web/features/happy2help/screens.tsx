@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { happyApi } from "./api";
+import { newClientId } from "./id";
 import { HappyKitten } from "./HappyBrand";
 import { CategoryIcon, Icon } from "./icons";
 import { QrScanner, type ScannedZone } from "./QrScanner";
@@ -154,7 +155,7 @@ type ZoneCheck =
   | { kind: "invalid"; reason: string };
 
 function loadDraft(): Draft {
-  const fresh: Draft = { zoneId: "", zoneSig: null, category: "", isImmediateDanger: false, description: "", requestId: crypto.randomUUID() };
+  const fresh: Draft = { zoneId: "", zoneSig: null, category: "", isImmediateDanger: false, description: "", requestId: newClientId() };
   try {
     const raw = sessionStorage.getItem(SOS_DRAFT_KEY);
     if (!raw) return fresh;
