@@ -13,6 +13,7 @@
 | Eval set | `api/eval/incidents.mn.json` — 10 fictional Mongolian cases incl. a prompt-injection case; `pnpm ai:eval`. |
 
 ## Live verification (2026-10-24)
+Latest: `docs/ai-proof/latest.json` — 15:42 local, `google/gemma-4-26b-a4b-it:free`, 8.9 s, schema-valid (model listed by the API). Earlier run below.
 `docs/ai-proof/latest.json` — 15:01 local, `google/gemma-4-31b-it:free`, 12.2 s, schema-valid, fictional bullying case.
 Observed limitation in that reply: one action item contains Greek letters inside a Mongolian word. Capacity was
 intermittent all afternoon (free tier 429, paid 402 without credits); incidents then show FAILED · QUOTA and retry.

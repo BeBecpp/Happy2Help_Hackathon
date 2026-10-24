@@ -98,3 +98,5 @@ Unblock: add OpenRouter credits (paid slug) or wait for upstream free capacity, 
 
 | 15:35 | Film preview inspection | PASS | Frames at 48/56/80/92 s of `video/out/preview-540p.mp4` inspected; two defects fixed (grey frozen desktop before hand-off → hold clip frame 45; footer hidden behind phone → centred). Still at frame 1440 re-rendered and verified. |
 | 15:37 | Final film render | PASS | `video/out/Happy2Help-Launch-Demo.mp4` — 1920×1080, 30 fps, H.264 + AAC 48 kHz, 106.0 s, 16.5 MB (Remotion 4.0.496, Chrome `--gl angle`, concurrency 6, 3180 frames). ffprobe verified; 9 sampled frames (5–102 s) inspected: `artifacts/film/Happy2Help-Launch-Demo-contact-sheet.png`. Audio mean −24.3 dB, peak −6.7 dB. |
+| 15:40 | git push origin main | PASS | Network returned; normal push (no force). Remote head `7e7e429` confirmed via GitHub API; film downloadable from raw.githubusercontent.com (200, 16 453 920 bytes). |
+| 15:42 | Gemma 4 live verification (`pnpm ai:verify`) | PASS | OpenRouter `google/gemma-4-26b-a4b-it:free`, 8.9 s, Zod-valid; proof in `docs/ai-proof/latest.json` (no secrets). |

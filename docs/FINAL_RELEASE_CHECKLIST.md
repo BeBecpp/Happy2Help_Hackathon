@@ -26,7 +26,8 @@ Statuses: [PASS] verified by a command or real browser run today · [FAIL] · [U
 
 ## Happy AI · Gemma 4
 - [PASS] Pipeline with fixtures (READY/FAILED/SKIPPED, timeout, quota, schema, retry sweeper) — `ai-pipeline.test.ts`.
-- [PASS] **Live inference verified** at 15:01 local (Cursor retry loop, before the network dropped): `google/gemma-4-31b-it:free`
+- [PASS] **Live inference re-verified at 15:42** local: `google/gemma-4-26b-a4b-it:free`, 8.9 s, schema-valid (`docs/ai-proof/latest.json`).
+- [PASS] Earlier live inference verified at 15:01 local (Cursor retry loop, before the network dropped): `google/gemma-4-31b-it:free`
   via OpenRouter, 12.2 s, output validated against the Zod schema — `docs/ai-proof/latest.json` (fictional case, no key).
   Known artifact in that reply: one action item mixes Greek letters into a Mongolian word; structure passed, content is
   advisory and teacher-reviewed. Paid ids still 402 (no credits), free ids rate-limited (429) most of the afternoon, so
@@ -41,7 +42,7 @@ Statuses: [PASS] verified by a command or real browser run today · [FAIL] · [U
 
 ## Repository
 - LICENSE AGPL-3.0-only (SDK is AGPL) · README · CONTRIBUTING/SECURITY (see repo) · `.env*` ignored · no secrets tracked.
-- Remote `origin` = github.com/BeBecpp/Happy2Help_Hackathon (first push 14:46). Later commits push when network returns.
+- [PASS] Remote `origin` = github.com/BeBecpp/Happy2Help_Hackathon — all commits pushed (remote head `7e7e429` + this one), film downloadable from the repo. No force-push used.
 
 ## MLH submission
 - [ ] A teammate submits in OrganizerHQ → Challenges → Add Submission before **17:30** (all three categories).
