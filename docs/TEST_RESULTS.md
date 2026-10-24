@@ -95,3 +95,5 @@ Unblock: add OpenRouter credits (paid slug) or wait for upstream free capacity, 
 | 15:27 | `node tools/film/record-footage.mjs` + NVENC transcode | 6 real clips (27.6 s, 27.4 s, 7.0 s, 7.4 s, 8.4 s, 4.0 s) → `video/public/footage/mp4/` |
 | 15:30 | Remotion still (frame 100), Chrome + `--gl angle` | PASS → `video/out/still-0100.png` |
 | 15:33 | Remotion preview render (0.5 scale) | running → `video/out/preview-540p.mp4` |
+
+| 15:35 | Film preview inspection | PASS | Frames at 48/56/80/92 s of `video/out/preview-540p.mp4` inspected; two defects fixed (grey frozen desktop before hand-off → hold clip frame 45; footer hidden behind phone → centred). Still at frame 1440 re-rendered and verified. |

@@ -20,6 +20,14 @@ Everything below must work offline.
 4. `tools/film/make-music.mjs`: original procedural soundtrack (104 BPM, 118 s) + cues (tap, whoosh, ping, chime) → `video/public/audio/*.wav`.
 5. Brand assets copied to `video/public/brand/` (mascot.png, mark.png, wordmark.png — the team's real assets).
 
+## Done since 15:05
+- Phase 1 polish: CSS pass + floor-map labels/pan + 390px overflow fixes; smoke 15/15 after; review shots in `artifacts/screenshots/review-after/`.
+- Phase 2: production build PASS (`NODE_ENV=production NEXT_DIST_DIR=.next-build next build`); external deploy BLOCKED (no network, no host).
+- Phase 3: smoke journey PASS on the live stack after polish; E2E 48/48 unchanged (CSS-only changes).
+- Phase 4: footage re-recorded on polished UI (phone clips cropped to 390×844 — Playwright pads larger canvases with grey); Remotion film written; preview rendered and inspected; fixes applied; final 1080p render next.
+- Docs: CONTRIBUTING, SECURITY, CODE_OF_CONDUCT, ARCHITECTURE, AI_MODEL, DEMO, HACKDAY_CHANGES, PITCH_SCRIPT, JUDGES_QA, FINAL_RELEASE_CHECKLIST.
+- Gemma 4: live proof exists (`docs/ai-proof/latest.json`, 15:01, gemma-4-31b-it:free).
+
 ## Pending (in order)
 1. Run: `node tools/film/record-footage.mjs` → webm clips; convert to mp4: `ffmpeg -i clip.webm -c:v libx264 -crf 18 -pix_fmt yuv420p clip.mp4` (Remotion `<OffthreadVideo>` reads mp4 reliably).
 2. Run: `node tools/film/make-music.mjs`.

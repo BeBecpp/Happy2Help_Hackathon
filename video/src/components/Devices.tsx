@@ -17,7 +17,9 @@ export const PhoneFrame: React.FC<{
   /** Loop a short clip: its length in frames (slightly under the real length). */
   loopFrames?: number;
   freeze?: boolean;
-}> = ({ src, width, startFrom = 0, cropTop = 0, dim = 0, playbackRate = 1, loopFrames, freeze = false }) => {
+  /** Frame of the clip to hold while frozen (recordings start before the page is painted). */
+  freezeFrame?: number;
+}> = ({ src, width, startFrom = 0, cropTop = 0, dim = 0, playbackRate = 1, loopFrames, freeze = false, freezeFrame = 45 }) => {
   const height = width * (844 / 390);
   const bezel = width * 0.045;
   return (
@@ -34,7 +36,7 @@ export const PhoneFrame: React.FC<{
       <div style={{ position: "absolute", left: bezel, top: bezel, width, height, borderRadius: width * 0.12, overflow: "hidden", background: theme.white }}>
         <div style={{ position: "absolute", left: 0, top: -cropTop, width, height: height + cropTop }}>
           {freeze ? (
-            <Freeze frame={0}><OffthreadVideo src={staticFile(src)} startFrom={startFrom} muted style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }} /></Freeze>
+            <Freeze frame={freezeFrame}><OffthreadVideo src={staticFile(src)} startFrom={startFrom} muted style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }} /></Freeze>
           ) : (
             loopFrames ? (
               <Loop durationInFrames={loopFrames}><OffthreadVideo src={staticFile(src)} startFrom={startFrom} muted style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }} /></Loop>
@@ -60,7 +62,9 @@ export const LaptopFrame: React.FC<{
   /** Loop a short clip: its length in frames (slightly under the real length). */
   loopFrames?: number;
   freeze?: boolean;
-}> = ({ src, width, startFrom = 0, cropTop = 0, dim = 0, playbackRate = 1, loopFrames, freeze = false }) => {
+  /** Frame of the clip to hold while frozen (recordings start before the page is painted). */
+  freezeFrame?: number;
+}> = ({ src, width, startFrom = 0, cropTop = 0, dim = 0, playbackRate = 1, loopFrames, freeze = false, freezeFrame = 45 }) => {
   const screenW = width;
   const screenH = width * (900 / 1440);
   const bezel = width * 0.012;
@@ -70,7 +74,7 @@ export const LaptopFrame: React.FC<{
       <div style={{ position: "absolute", left: bezel, top: bezel, width: screenW, height: screenH, borderRadius: width * 0.01, overflow: "hidden", background: theme.white }}>
         <div style={{ position: "absolute", left: 0, top: -cropTop, width: screenW, height: screenH + cropTop }}>
           {freeze ? (
-            <Freeze frame={0}><OffthreadVideo src={staticFile(src)} startFrom={startFrom} muted style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }} /></Freeze>
+            <Freeze frame={freezeFrame}><OffthreadVideo src={staticFile(src)} startFrom={startFrom} muted style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }} /></Freeze>
           ) : (
             loopFrames ? (
               <Loop durationInFrames={loopFrames}><OffthreadVideo src={staticFile(src)} startFrom={startFrom} muted style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }} /></Loop>

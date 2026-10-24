@@ -38,7 +38,7 @@ const Label: React.FC<{ text: string; x: number; y: number }> = ({ text, x, y })
 );
 
 const Truth: React.FC = () => (
-  <div style={{ position: "absolute", right: 48, bottom: 36, fontFamily: theme.font, fontSize: 20, fontWeight: 600, color: theme.muted }}>{copy.realFootage}</div>
+  <div style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", bottom: 30, fontFamily: theme.font, fontSize: 20, fontWeight: 600, color: theme.muted, whiteSpace: "nowrap" }}>{copy.realFootage}</div>
 );
 
 /**
