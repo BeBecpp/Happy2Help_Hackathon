@@ -1,7 +1,7 @@
 # Happy2Help — test results
 
 Platform: Windows 11, Node 24.18, pnpm 11.16, no Docker. Local time UTC+8, 2026-10-24.
-Revision: `main` @ `2ac9a70` (local only, not pushed). All people, schools and text are fictional.
+Revision: `main`, pushed to https://github.com/BeBecpp/Happy2Help_Hackathon at 14:46 (tested code = `a30f43e`). All people, schools and text are fictional.
 
 ## Automated
 

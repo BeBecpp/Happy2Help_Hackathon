@@ -132,7 +132,8 @@ Provision: copy `.env.example` → `.env` (gitignored); `tools/dev-stack.mjs` ge
 ## 11. Git
 - Branch `main`. Local commits: `2ac9a70` (main build), `bfe1e20` (docs), plus a follow-up commit from this
   pass (federation test, patrol fix, handoff) — run `git log --oneline -5`.
-- `git remote -v` → (none). **The submission repo has NOT been pushed.** Owner approval required; never force-push.
+- `origin` = `https://github.com/BeBecpp/Happy2Help_Hackathon.git`. **Pushed at 14:46 local with owner approval**
+  (`main` → `origin/main`, first push to the empty repo, no force). Push further commits normally; never force-push.
 - Tracked-file secret scan (OpenRouter/Google/GitHub keys, private keys, credentialed Mongo URLs): no hits.
 
 ## 12. Known bugs and blockers (by risk)
@@ -150,8 +151,8 @@ Provision: copy `.env.example` → `.env` (gitignored); `tools/dev-stack.mjs` ge
    (from `api/`); the plugin's sweeper re-runs FAILED·QUOTA incidents automatically, or click
    «Gemma 4-өөр дахин шинжлүүлэх». Accept: `docs/ai-proof/latest.json` written, an incident shows READY with a
    `google/gemma-4-*` model id; update TEST_RESULTS.
-2. **Push submission repo** (only with owner OK) — `git remote add origin https://github.com/BeBecpp/Happy2Help_Hackathon.git`,
-   `git push -u origin main`. Accept: GitHub shows README/LICENSE/code, no `.env*`.
+2. **Keep the submission repo current** — already pushed; after each verified milestone `git push`. Accept:
+   GitHub shows the latest commit, README/LICENSE/code, no `.env*`.
 3. **erxes UI remote decision** — either scaffold a minimal Module Federation remote for erxes Core UI
    (`ui/`, port 3099, exposes the staff inbox) or remove/annotate the `ui` block in `erxes.json`. Accept:
    truth table updated; nothing claimed without loading it in Core UI.
