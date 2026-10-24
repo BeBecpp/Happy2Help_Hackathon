@@ -139,18 +139,18 @@ export const ModulesScene: React.FC<{ dur: number }> = ({ dur }) => {
       <div style={{ position: "absolute", left: 80, top: 130, opacity: inP, transform: `translateX(${(1 - inP) * -60}px)` }}>
         <LaptopFrame src={FOOTAGE.staffMap} width={1000} cropTop={DESK_CROP} dim={idx === 1 ? 0 : 0.5} loopFrames={216} />
       </div>
-      <div style={{ position: "absolute", left: 1190, top: 80, opacity: inP, transform: `translateY(${(1 - inP) * 60}px)` }}>
+      <div style={{ position: "absolute", left: 1150, top: 90, opacity: inP, transform: `translateY(${(1 - inP) * 60}px)` }}>
         {idx < 2 ? (
-          <PhoneFrame src={FOOTAGE.councilCare} width={400} cropTop={PHONE_CROP} dim={idx === 1 ? 0.45 : 0} loopFrames={246} />
+          <PhoneFrame src={FOOTAGE.councilCare} width={370} cropTop={PHONE_CROP} dim={idx === 1 ? 0.45 : 0} loopFrames={246} />
         ) : (
-          <PhoneFrame src={FOOTAGE.patrol} width={400} cropTop={PHONE_CROP} loopFrames={114} />
+          <PhoneFrame src={FOOTAGE.patrol} width={370} cropTop={PHONE_CROP} loopFrames={114} />
         )}
       </div>
-      <div style={{ position: "absolute", left: 1620, top: 160, width: 260, opacity: o, transform: `translateY(${(1 - o) * 10}px)` }}>
+      <div style={{ position: "absolute", left: 1600, top: 170, width: 300, opacity: o, transform: `translateY(${(1 - o) * 10}px)` }}>
         <div style={{ fontFamily: theme.font, fontSize: 40, fontWeight: 800, color: theme.navy, lineHeight: 1.1 }}>{titles[idx]![0]}</div>
         <div style={{ marginTop: 12, fontFamily: theme.font, fontSize: 24, color: theme.ink, lineHeight: 1.35 }}>{titles[idx]![1]}</div>
       </div>
-      <Caption text={copy.modules.care[0] + " · " + copy.modules.care[1]} at={third - 60} until={third + 60} small x={1190} y={960} />
+      <Caption text={copy.modules.care[0] + " · " + copy.modules.care[1]} at={third - 60} until={third + 60} small x={80} y={960} />
       <Truth />
     </AbsoluteFill>
   );

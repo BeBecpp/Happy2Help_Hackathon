@@ -647,3 +647,21 @@ button.happy-critical-banner { cursor: pointer; }
   .happy-hero { grid-template-columns: minmax(0, 1fr) 40%; min-height: 360px; }
   .happy-hero__art { height: 300px; }
 }
+
+/* ---------- 390 px overflow fixes (teacher detail) ---------- */
+.happy-main { overflow-x: clip; }
+.happy-log li { flex-wrap: wrap; row-gap: 2px; overflow-wrap: anywhere; }
+.happy-log li strong { min-width: 0; }
+.happy-meta div, .happy-assignee, .happy-proposal__meta, .happy-chat-head div { min-width: 0; overflow-wrap: anywhere; }
+.happy-assignees { min-width: 0; }
+.happy-tabs--chat { max-width: 100%; }
+.happy-tabs--chat button { min-width: 0; white-space: normal; line-height: 1.2; }
+.happy-detail__heading h1 { flex-wrap: wrap; }
+@media (max-width: 767px) {
+  .happy-teacher-detail, .happy-detail { max-width: 100%; }
+  .happy-chat-head h1 { font-size: 20px; }
+  .happy-conv__top strong, .happy-conv__preview { overflow: hidden; text-overflow: ellipsis; }
+}
+
+.happy-teacher-detail__grid > * { min-width: 0; }
+.happy-teacher-detail__main > * { min-width: 0; }

@@ -68,7 +68,7 @@ export const QuestionScene: React.FC<{ dur: number }> = ({ dur }) => {
     <AbsoluteFill style={{ background: theme.navyDeep, opacity: fade }}>
       <AbsoluteFill style={{ background: `radial-gradient(900px 600px at ${x}px ${y}px, rgba(91,156,255,${0.22 * glow}), transparent 70%)` }} />
       <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", paddingBottom: 120 }}>
-        <KineticText text={copy.question} size={104} delay={14} stagger={6} maxWidth={1500} />
+        <KineticText text={copy.question} size={96} delay={14} stagger={6} maxWidth={1750} />
       </AbsoluteFill>
       <div style={{ position: "absolute", left: x - 22, top: y - 22, width: 44, height: 44, borderRadius: 22, background: theme.sky, boxShadow: `0 0 ${60 * glow}px ${30 * glow}px rgba(91,156,255,0.35)` }} />
     </AbsoluteFill>
