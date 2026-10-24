@@ -1,0 +1,13 @@
+node_modules
+dist
+.next
+api/generated
+.env
+.env.runtime
+.env.local
+.data/
+*.log
+.DS_Store
+docs/ai-proof/*.raw.json
+.claude/
+*.tsbuildinfo

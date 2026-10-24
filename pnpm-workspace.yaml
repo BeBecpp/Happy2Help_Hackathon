@@ -1,0 +1,35 @@
+packages:
+  - api
+  - web
+
+verifyDepsBeforeRun: false
+
+overrides:
+  "@sentry/node": 10.76.2
+  "@opentelemetry/api": 1.9.1
+  "@opentelemetry/instrumentation": 0.220.0
+  "@opentelemetry/sdk-trace-base": 2.12.0
+
+onlyBuiltDependencies:
+  - mongodb-memory-server
+  - esbuild
+  - unrs-resolver
+  - "@tailwindcss/oxide"
+  - sharp
+
+ignoredBuiltDependencies:
+  - "@apollo/protobufjs"
+  - "@google/genai"
+  - aws-sdk
+  - msgpackr-extract
+  - protobufjs
+
+allowBuilds:
+  '@apollo/protobufjs': set this to true or false
+  '@google/genai': set this to true or false
+  aws-sdk: set this to true or false
+  esbuild: set this to true or false
+  mongodb-memory-server: set this to true or false
+  msgpackr-extract: set this to true or false
+  protobufjs: set this to true or false
+  unrs-resolver: set this to true or false

@@ -1,0 +1,26 @@
+{
+  "name": "happy2help-hackathon",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Happy2Help — AI-powered school safety & student support plugin for erxes (Hacktoberfest Hack Day Ulaanbaatar × erxes Hub, 2026-10-24)",
+  "license": "AGPL-3.0-only",
+  "scripts": {
+    "dev": "node tools/dev-stack.mjs",
+    "dev:api": "pnpm --filter happy2help_api dev",
+    "dev:web": "pnpm --filter happy2help_web dev",
+    "build": "pnpm --filter happy2help_api build && pnpm --filter happy2help_web build",
+    "check": "pnpm --filter happy2help_api check && pnpm --filter happy2help_web exec tsc --noEmit",
+    "test": "pnpm --filter happy2help_api test",
+    "test:e2e": "pnpm --filter happy2help_api test:e2e",
+    "seed": "pnpm --filter happy2help_api seed",
+    "ai:verify": "pnpm --filter happy2help_api ai:verify",
+    "ai:eval": "pnpm --filter happy2help_api ai:eval"
+  },
+  "devDependencies": {
+    "mongodb-memory-server": "^10.2.3"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "pnpm@11.16.0"
+}
